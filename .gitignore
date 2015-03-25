@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+# build folder
+build
+
+# mac hidden files
+.DS_Store
