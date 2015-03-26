@@ -92,7 +92,7 @@ We choose to create and use
 ```
 C:\variational-depth-from-focus\build
 ```
-Now we need to set the compiler under Tools → Configure. Select your compiler and select "Use default native compilers".
+Now we need to set the compiler under Tools → Configure. Choose your compiler and select "Use default native compilers".
 Click "Finish" and CMake will try to generate the build files. If you get an error message about "OpenCV_DIR-NOTFOUND",
 click on this message and specify the path to 
 ```
@@ -101,9 +101,9 @@ your/path/to/opencv/build
 Everything should now work smoothly and then you can open the generated "Variational_depth_from_focus.sln" in Visual Studio, which can be found in the build folder. In Visual Studio, exclude "ALL_BUILD" and "ZERO_CHECK" from the project,
 right-click "main" and select "Set as Startup Project".
 
-The project should now compile. If it complains, that it can not find "dirent.h", you have to download windows implementation of the header file from here  
+The project should now compile successful. If the compiler complains that it can not find "dirent.h", you have to download the windows implementation of the header file from here  
 http://www.softagalleria.net/dirent.php  
-and copy it into the include folder of you Visual Studio installation.  
+and copy it into the include folder of your Visual Studio installation.  
 For Visual Studio 2013 the path would be  
 ```
 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
