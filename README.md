@@ -110,13 +110,43 @@ C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
 ```
 
 ### Execution
-
-#### Run with included synthetic sample sequence
+#### Quickstart
+If you just run
 ```sh
 ./main
 ```
+then our code uses the included focus sequence with appropriate default parameters.
+The focus sequence was generated using the Defocus simulation from
+http://www.sayonics.com/downloads.html
 
-#### More sequences on real data
+#### Advanced
+You can evaluate your own image sequence by specifying its locaton to the executable via the "-dir" switch, e.g.
+```sh
+./main -dir your/path/to/imgs
+```
+All pictures of your sequence have to reside in the specified folder; pictures located in sub-folders are
+ignored. Currently supported file formats are JPEG, TIFF and PNG.
+Additional parameters can be used, which are explained in more detail below.
+##### Parameters
+Parameter | Expected Type | Default Value |Explanation
+----------|---------------|---------------|-----------
+dir | string | ../samples/sim | specifies the location of your image sequence. All pictures have to be in the folder; no sub-folders are supported.
+smoothGPU | bool | 1 | uses the GPU to smooth the initial obtained MLAP estimates
+pageLocked | bool | 0 | uses pageLocked-memory and cuda streams to speed up the creation of sharpness images
+minVal | int | -10 | minimum value of the range for which the polynomial approximations are calculated
+maxVal | int | 10 | maximum value of the range for which the polynomial approximations are calculated
+polynomialDegree | int | 6 | specifies the degree of the polynomials we later fit to the sharpness values
+denomRegu | float | 0.3 | regularizer used to decrease importance of sharp edges
+nrIterations | int | 400 | nr. of iterations of the ADMM algorithm
+convIterations | int | 0 | *TODO*
+lambda | float | 1.0 | parameter used in ADMM algorithm *TODO*
+
+### Datasets
+#### ARRI&reg; - Dataset
+The dataset of the paper is available under the following link:  
+*COMING SOON*
+
+#### Booksequence
 * http://www.sayonics.com/sources/books_00.zip
 * http://www.sayonics.com/sources/books_02.zip
 * http://www.sayonics.com/sources/books_05.zip
