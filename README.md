@@ -57,7 +57,7 @@ Next, install OpenCV 2.4.10 from
 https://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.10/opencv-2.4.10.exe/download  
 Please remember in which path you installed OpenCV, since we have to add to the Windows PATH environment variable
 ```
-\path\to\opencv\build\x64\vc12\bin
+your/path/to/opencv/build/x64/vc12/bin
 ```
 If necessary, replace x64 with x86 for a 32-bit system and vc12 with vc11 for Visual Studio 12 or vc10 for Visual Studio 10.  
   
@@ -83,8 +83,32 @@ Check out the repository under some directory, e.g.
 ```
 C:\variational-depth-from-focus
 ```
-Start up CMake and
-1. specify where the source is. In our case it would be under C:\variational-depth-from-focus
+Start up CMake and specify where the source code is found. In our example this would be
+```
+C:\variational-depth-from-focus
+```
+Next, you have to specify, and if necessary create, a folder into which the binaries get generated.  
+We choose to create and use
+```
+C:\variational-depth-from-focus\build
+```
+Now we need to set the compiler under Tools → Configure. Select your compiler and select "Use default native compilers".
+Click "Finish" and CMake will try to generate the build files. If you get an error message about "OpenCV_DIR-NOTFOUND",
+click on this message and specify the path to 
+```
+your/path/to/opencv/build
+```
+Everything should now work smoothly and then you can open the generated "Variational_depth_from_focus.sln" in Visual Studio, which can be found in the build folder. In Visual Studio, exclude "ALL_BUILD" and "ZERO_CHECK" from the project,
+right-click "main" and select "Set as Startup Project".
+
+The project should now compile. If it complains, that it can not find "dirent.h", you have to download windows implementation of the header file from here  
+http://www.softagalleria.net/dirent.php  
+and copy it into the include folder of you Visual Studio installation.  
+For Visual Studio 2013 the path would be  
+```
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
+```
+
 ### Execution
 
 #### Run with included synthetic sample sequence
