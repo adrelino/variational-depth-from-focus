@@ -38,9 +38,9 @@ Please use the appropriate package manager of your distribution to install these
 for Arch Linux
 
 ```sh
-# pacman -S opencv
-# pacman -S cmake
-# pacman -S cuda
+pacman -S opencv
+pacman -S cmake
+pacman -S cuda
 ```
 
 #### Windows
