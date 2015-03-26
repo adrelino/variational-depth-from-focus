@@ -31,8 +31,17 @@ http://developer.download.nvidia.com/compute/cuda/7_0/Prod/local_installers/cuda
 
 
 #### Linux
-TODO
+Our code was tested under Arch Linux with OpenCV 2.4.10, CMake 3.2.1 and CUDA 7.0.
+It should compile and run successfully under your favorite linux distribution if it provides the above mentioned dependencies.
 
+Please use the appropriate package manager of your distribution to install these packages; below is an example
+for Arch Linux
+
+```sh
+# pacman -S opencv
+# pacman -S cmake
+# pacman -S cuda
+```
 
 #### Windows
 TODO
