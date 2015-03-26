@@ -66,6 +66,10 @@ http://www.cmake.org/download/
 
 ### Installation
 Now we are ready to build our code
+
+#### Mac OSX and Linux
+Check out our repository, create a separate build-folder and then build the files using CMake.
+
 ```sh
 cd ~/projects
 git clone https://github.com/adrelino/variational-depth-from-focus.git
@@ -74,7 +78,8 @@ mkdir build && cd build
 cmake ..
 make
 ```
-
+#### Windows 
+TODO
 
 ### Execution
 
