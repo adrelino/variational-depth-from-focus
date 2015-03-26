@@ -44,8 +44,25 @@ pacman -S cuda
 ```
 
 #### Windows
-TODO
+The code was tested under Windows 8.1, OpenCV 2.4.10, CMake 3.2.1, CUDA 7.0 and assumes you have a working version of Visual Studio installed.In our case, we worked with Visual Studio Ultimate 2013. 
 
+If you do not have a version of Visual Studio, it is recommended that you install it first.
+One can obtain a free version under the following link:
+https://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx
+
+Download and install CUDA 7.0, which can be found under:  
+https://developer.nvidia.com/cuda-downloads  
+  
+Next, install OpenCV 2.4.10 from  
+https://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.10/opencv-2.4.10.exe/download  
+Please remember in which path you installed OpenCV, since we have to add to the Windows PATH environment variable
+```
+\path\to\opencv\build\x64\vc12\bin
+```
+If necessary, replace x64 with x86 for a 32-bit system and vc12 with vc11 for Visual Studio 12 or vc10 for Visual Studio 10.  
+  
+Lastly, we need to install CMake, which can be obtained under:
+http://www.cmake.org/download/
 
 ### Installation
 Now we are ready to build our code
