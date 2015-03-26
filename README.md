@@ -79,8 +79,12 @@ cmake ..
 make
 ```
 #### Windows 
-TODO
-
+Check out the repository under some directory, e.g. 
+```
+C:\variational-depth-from-focus
+```
+Start up CMake and
+1. specify where the source is. In our case it would be under C:\variational-depth-from-focus
 ### Execution
 
 #### Run with included synthetic sample sequence
