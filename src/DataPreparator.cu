@@ -38,7 +38,8 @@ namespace vdff {
   }
 
   DataPreparator::~DataPreparator() {
-
+    cout << "Destroying DataPreparator instance" << endl;
+    
     if (d_coefDerivative != NULL) {
       cudaFree(d_coefDerivative);
       d_coefDerivative = NULL;

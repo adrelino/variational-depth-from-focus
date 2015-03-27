@@ -83,7 +83,6 @@ namespace vdff {
   }
 
   Tensor3f::~Tensor3f(){
-    printf("Tensor3f[%s]::~Tensor3f:\n",/*test*/name.c_str());
     free();
   }
 
@@ -136,7 +135,7 @@ namespace vdff {
   void Tensor3f::freeHost(){
     if (h_img_isAllocated) {
       delete[] h_img;
-      printf("Tensor3f[%s]::freeHost: %0.6f MB\n",/*test*/name.c_str(),nrBytes/1e6f);
+      //printf("Tensor3f[%s]::freeHost: %0.6f MB\n",/*test*/name.c_str(),nrBytes/1e6f);
       h_img_isAllocated = false;
     }
   }
@@ -144,7 +143,7 @@ namespace vdff {
   void Tensor3f::freeDevice(){
     if (d_img_isAllocated) {
       cudaFree(d_img);
-      printf("Tensor3f[%s]::freeDevice: %0.6f MB\n",/*test*/name.c_str(),nrBytes/1e6f);
+      //printf("Tensor3f[%s]::freeDevice: %0.6f MB\n",/*test*/name.c_str(),nrBytes/1e6f);
       d_img_isAllocated=false;
     }
   }

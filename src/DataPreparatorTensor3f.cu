@@ -38,28 +38,22 @@ namespace vdff {
   }
 
   DataPreparatorTensor3f::~DataPreparatorTensor3f() {
-    printf("[DESTRUCTOR] ~DataPreparatorTensor3f:\n");
-
     delete methods;
 
     if(t_imgSeq != 0){
-      printf("t_imgSeq\n");
       delete t_imgSeq;
     }
+    
     if(t_sharpness != 0){
-      printf("t_sharpness\n");
       delete t_sharpness;
     }
     if(t_noisyDepthEstimate != 0){
-      printf("t_noisyDepthEstimate\n");
       delete t_noisyDepthEstimate;
     }
     if(t_maxValues != 0){
-      printf("t_maxValues\n");
       delete t_maxValues;
     }
     if (t_coefDerivative != 0) {
-      printf("t_coefDerivative\n");
       delete t_coefDerivative;
     }
   }
@@ -166,6 +160,7 @@ namespace vdff {
     cout << endl;
 
     delete t_imgSeq; //saves memory, but if we load (TODO) tiled for big images, we need to keep at least the host part of this
+    t_imgSeq = NULL;
 
     methods->toc("determineSharpnessFromAllImages");
 
@@ -275,7 +270,6 @@ namespace vdff {
     return tmpInverse*X.t();
   }
 
-  // TODO(Dennis): exchange scale with min/max Value like used in LinearizedADMM!
   void DataPreparatorTensor3f::approximateContrastValuesWithPolynomial(size_t degree) {
     //in: sharpness
 
