@@ -175,3 +175,42 @@ void showImage(const string &title, const cv::Mat &mat, int x, int y)
     cvMoveWindow(wTitle, x, y);
     cv::imshow(wTitle, mat);
 }
+
+#define MAX_RANGE(image) ((1 << 8*(image.elemSize1())) -1)
+
+int convertToFloat(cv::Mat &image){
+    int maxRange = MAX_RANGE(image);
+    image.convertTo(image, CV_32F, 1.0f/maxRange);
+//    cv::imshow("converted",image);
+//    cv::waitKey();
+    return maxRange;
+}
+
+void imgInfo(cv::Mat image){
+    //double min,max;
+    //cv::minMaxIdx(image,&min,&max);
+    cout<<"\t type: "<<getImageType(image.type())<<"\t";
+    cout<<"channels: "<<image.channels()<<"\t";
+//    cout<<"depth: "<<image.depth()<<endl;
+//    cout<<"elemSize: "<<image.elemSize()<<endl;
+    cout<<"elemSize1: "<<image.elemSize1()<<" bytes \t";
+    cout<<"maxRange: "<<MAX_RANGE(image)<<"\t";
+    //cout<<"min: "<<min<<" \t max: "<<max<<endl;
+//    cout<<"step: "<<image.step<<endl;
+//    cout<<"step1: "<<image.step1()<<endl;
+//    cout<<"total: "<<image.total()<<endl;
+}
+
+Mat imreadFloat(string filename){
+    int flags = CV_LOAD_IMAGE_UNCHANGED;
+//    if(openCVHelpers::color) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR;
+//    if(openCVHelpers::grayscale) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_GRAYSCALE;
+
+    cv::Mat original = imread(filename,flags);
+    //cout<<endl;
+    imgInfo(original);
+    convertToFloat(original);
+    //imgInfo(original);
+    return original;
+}
+

@@ -21,11 +21,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <string>
-#include <vector>
-
-// for WINDOWS: has to be downloaded and put into ..\Visual Studio 2013\VC\include or similar
-// check: http://www.softagalleria.net/download/dirent/
-#include <dirent.h>
 
 #include <sys/types.h>
 #include <vector>
@@ -57,8 +52,9 @@ void imagesc(std::string title, cv::Mat mat, int x, int y);
 void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg, 
 				      int &paddingX, int &paddingY);
 void showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
-std::string getOSSeparator();
-std::vector<std::string> getAllImagesFromFolder(const char *dirname);
+#include "loading.h"
+//std::string getOSSeparator();
+//std::vector<std::string> getAllImagesFromFolder(const char *dirname);
 float getAverage(const std::vector<float> &v);
 void getAvailableGlobalMemory(size_t *free, size_t *total, bool print=false);
 void memprint();

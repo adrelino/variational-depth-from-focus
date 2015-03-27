@@ -150,45 +150,6 @@ void showDepthImage(const string &wndTitle, const Mat& img, int posX, int posY, 
   showImage(wndTitle, heatMap, posX, posY);
 }
 
-string getOSSeparator() {
-#ifdef _WIN32
-  return "\\";
-#else
-  return "/";
-#endif
-}
-
-vector<string> getAllImagesFromFolder(const char *dirname) {
-  DIR *dir = NULL;
-  struct dirent *entry;
-  vector<string> allImages;
-
-  dir = opendir(dirname);
-
-  if (!dir) {
-    cerr << "Could not open directory " << dirname << ". Exiting..." << endl;
-    exit(1);
-  }
-  
-  const string sep = getOSSeparator();
-  string dirStr = string(dirname);
-
-  while(entry = readdir(dir)) {
-    if (strstr(entry->d_name, ".png") ||
-	strstr(entry->d_name, ".jpg") ||
-	strstr(entry->d_name, ".tif")) {
-      string fileName(entry->d_name);
-      string fullPath = dirStr + sep + fileName;
-      allImages.push_back(fullPath);
-    }
-  }
-  closedir(dir);
-
-  // sort string alphabetically
-  std::sort(allImages.begin(), allImages.end());
-  return allImages;
-}
-
 void getAvailableGlobalMemory(size_t *free, size_t *total, bool print) {
   cudaMemGetInfo(free, total); CUDA_CHECK;
   if(print){

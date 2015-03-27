@@ -29,26 +29,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-// parameter processing
-template<typename T> bool getParam(std::string param, T &var, int argc, char **argv)
-{
-    const char *c_param = param.c_str();
-    for(int i=argc-1; i>=1; i--)
-    {
-        if (argv[i][0]!='-') continue;
-        if (strcmp(argv[i]+1, c_param)==0)
-        {
-            if (!(i+1<argc)) continue;
-            std::stringstream ss;
-            ss << argv[i+1];
-            ss >> var;
-            std::cout<<"PARAM[SET]: "<<param<<" : "<<var<<std::endl;
-            return (bool)ss;
-        }
-    }
-    std::cout<<"PARAM[DEF]: "<<param<<" : "<<var<<std::endl;
-    return false;
-}
+#include "loading.h"
 
 // opencv helpers
 void convert_mat_to_layered(float *aOut, const cv::Mat &mIn);

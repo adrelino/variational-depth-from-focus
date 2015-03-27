@@ -24,6 +24,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <string>
 
+class openCVHelpers {
+    public :
+    static bool unchanged;
+    static bool grayscale;
+};
+
 // fills Mat ascending with values like m = (0:1:m.cols)
 // assumes Mat is row/column vector
 void fillMatAscending(cv::Mat& m);
@@ -40,5 +46,11 @@ std::string getImageType(int number);
 
 void checkLoadedImage(const cv::Mat& m, const char *fileName);
 void showImage(const std::string &title, const cv::Mat &mat, int x, int y);
+
+//void convertToFloat(cv::Mat& image);
+void imgInfo(cv::Mat image);
+
+//reads 1 or 3 channel image (with 8 or 16 bit depth) and converts it to 1 or 3 channel float (with 32 bit depth) correctly scaled form 0.0 -> 1.0f
+cv::Mat imreadFloat(std::string filename);
 
 #endif
