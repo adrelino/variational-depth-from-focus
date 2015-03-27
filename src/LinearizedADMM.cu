@@ -16,7 +16,6 @@
 // ### Markus Schlaffer, markus.schlaffer@in.tum.de, p070
 
 #include <LinearizedADMM.cuh>
-#include <helper.h>
 #include <utils.cuh>
 #include <vector>
 #include <cudaWrappers.h>

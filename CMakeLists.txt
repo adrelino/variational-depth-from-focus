@@ -12,7 +12,6 @@ include_directories(include/)
 # sources
 set(SOURCES
     src/main.cu
-    src/helper.cu
     src/common_kernels.cu
     src/LaplaceInversion.cu
     src/FCT.cu

@@ -21,7 +21,7 @@
 #include <cuda.h>
 #include <cudaWrappers.h>
 #include <iostream>
-#include <helper.h>
+#include <utils.cuh>
 
 using namespace std;
 using namespace cv;

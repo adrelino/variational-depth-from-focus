@@ -18,7 +18,7 @@
 #ifndef CUDA_FCT_H
 #define CUDA_FCT_H
 
-#include <helper.h>
+#include <utils.cuh>
 #include <cufft.h>
 #include <id.h>
 #include <common_kernels.cuh>

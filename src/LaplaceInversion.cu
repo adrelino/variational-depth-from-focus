@@ -26,7 +26,7 @@
 #include <FCT.cuh>
 #include <openCVHelpers.h>
 #include <common_kernels.cuh>
-#include <helper.h>
+#include <utils.cuh>
 
 using namespace cv;
 using namespace std;

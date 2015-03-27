@@ -18,7 +18,7 @@
 #include <cassert>
 
 #include <CUDATimer.h>
-#include <helper.h>
+#include <utils.cuh>
 
 #include <iostream>
 using namespace std;

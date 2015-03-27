@@ -20,7 +20,7 @@
 
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include <helper.h>
+#include <utils.cuh>
 #include <DataPreparator.cuh>
 #include <common_kernels.cuh>
 

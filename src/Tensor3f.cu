@@ -16,7 +16,7 @@
 // ### Markus Schlaffer, markus.schlaffer@in.tum.de, p070
 
 #include <Tensor3f.cuh>
-#include <helper.h>
+#include <utils.cuh>
 #include <openCVHelpers.h>
 
 Tensor3f::Tensor3f(int w, int h, int nc, int nrImgs, std::string name)

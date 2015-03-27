@@ -26,7 +26,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <helper.h>
+#include <utils.cuh>
 #include <common_kernels.cuh>
 #include <LaplaceInversion.cuh>
 #include <openCVHelpers.h>
