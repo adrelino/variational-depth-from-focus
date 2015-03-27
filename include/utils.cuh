@@ -63,11 +63,9 @@ namespace vdff {
 	      std::stringstream ss;
 	      ss << argv[i+1];
 	      ss >> var;
-	      std::cout<<"PARAM[SET]: "<<param<<" : "<<var<<std::endl;
 	      return (bool)ss;
 	    }
 	}
-      std::cout<<"PARAM[DEF]: "<<param<<" : "<<var<<std::endl;
       return false;
     }
 

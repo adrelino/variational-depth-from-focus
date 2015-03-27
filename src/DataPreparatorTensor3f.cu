@@ -58,12 +58,12 @@ namespace vdff {
     }
   }
 
-  Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int skipNthPicture) {
+  Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int useNthPicture) {
     //in: nothing
     cout<<"DataPreparatorTensor3f::determineSharpnessFromAllImages"<<endl;
     methods->tic();
 
-    vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath);
+    vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath, useNthPicture);
 
     size_t nrImgs = imgFileNames.size();
     string imgFile = imgFileNames[0];
@@ -120,13 +120,6 @@ namespace vdff {
     cout << endl;
 
     for(int i = 0; i < nrImgs; ++i) {
-    
-      if (skipNthPicture > 1) {
-	if ((i % skipNthPicture) == 0) {
-	  continue;
-	}
-      }
-    
       cout << "\r" << flush;
       cout << "Loading picture into Host Memory: " << (i+1) << " from " << nrImgs;
 

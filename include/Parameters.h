@@ -19,8 +19,6 @@ namespace vdff {
     float dataFidelityParam;  //2.5f no holes
     float dataDescentStep;
     
-    // show iteration steps?
-    bool plotIterations;
     // nr iterations for ADMM algorithm
     size_t convIterations;
     size_t nrIterations;
@@ -33,7 +31,7 @@ namespace vdff {
     bool usePageLockedMemory;
     bool smoothGPU;
 
-    int skipNthPicture;
+    int useNthPicture;
     std::string exportFilename;
 
   Parameters() : folderPath("../samples/sim"),
@@ -42,7 +40,6 @@ namespace vdff {
       polynomialDegree(6),
       denomRegu(0.3f),
       dataFidelityParam(6.0f),
-      plotIterations(false),
       convIterations(0),
       nrIterations(400),
       lambda(1.0f),
@@ -50,7 +47,7 @@ namespace vdff {
       useTensor3fClass(false),
       usePageLockedMemory(false),
       smoothGPU(true),
-      skipNthPicture(1),
+      useNthPicture(1),
       exportFilename("")
     {
       dataDescentStep = 8.0 / dataFidelityParam;

@@ -30,7 +30,6 @@ namespace vdff {
   }
 
   LayeredMemory::~LayeredMemory() {
-    cout << "Destroying Layered Memory instance" << endl;
   }
 
   void LayeredMemory::copyMLAPIntoMemory(float *d_MLAPEstimate, size_t index) {

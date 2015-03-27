@@ -129,8 +129,6 @@ namespace vdff {
       return c;  
     }
 
-
-
     string getOSSeparator() {
 #ifdef _WIN32
       return "\\";
@@ -139,7 +137,7 @@ namespace vdff {
 #endif
     }
 
-    vector<string> getAllImagesFromFolder(const char *dirname, int skipNthPicture) {
+    vector<string> getAllImagesFromFolder(const char *dirname, int useNthPicture) {
       DIR *dir = NULL;
       struct dirent *entry;
       vector<string> allImages;
@@ -157,6 +155,7 @@ namespace vdff {
       while(entry = readdir(dir)) {
 	if (strstr(entry->d_name, ".png") ||
 	    strstr(entry->d_name, ".jpg") ||
+	    strstr(entry->d_name, ".jpeg") ||
 	    strstr(entry->d_name, ".tif")) {
 	  string fileName(entry->d_name);
 	  string fullPath = dirStr + sep + fileName;
@@ -169,20 +168,17 @@ namespace vdff {
       std::sort(allImages.begin(), allImages.end());
 
       // delete some pictures if desired
-      if (skipNthPicture > 1) {
+      if (useNthPicture > 1) {
 
 	// some sanity check
-	if (skipNthPicture >= allImages.size()) {
-	  cerr << "You can not skip " << skipNthPicture << " since there are only " << allImages.size() 
+	if (useNthPicture >= allImages.size()) {
+	  cerr << "You can not use every " << useNthPicture << " since there are only " << allImages.size() 
 	       << " pictures in your chosen folder.\nPlease adjust your parameter." << endl;
 	  exit(1);
 	}
     
 	vector<string> reduced;
-	for (size_t i = 0; i < allImages.size(); ++i) {
-	  if ((i % skipNthPicture) == 0)
-	    continue;
-      
+	for (size_t i = 0; i < allImages.size(); i += useNthPicture) {
 	  reduced.push_back(allImages.at(i));
 	}
 	return reduced;

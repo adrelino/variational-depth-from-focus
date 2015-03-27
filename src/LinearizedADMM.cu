@@ -297,7 +297,7 @@ namespace vdff {
 	}
       }
       cout << "\r" << flush;
-      cout << "Iteration " << it << " of " << maxIter;      
+      cout << "Computing iteration " << (it+1) << " of " << maxIter;      
     
 
       // implements section C.) of the paper
