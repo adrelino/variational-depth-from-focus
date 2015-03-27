@@ -19,7 +19,7 @@
 #include <opencv2/core/core.hpp>
 #include <cuda.h>
 #include <cudaWrappers.h>
-#include <utils.cuh>
+#include <openCVHelpers.h>
 #include <iostream>
 
 using namespace std;

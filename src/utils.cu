@@ -19,7 +19,6 @@
 #include <iostream>
 #include <openCVHelpers.h>
 #include <cstring>
-#include <opencv2/contrib/contrib.hpp>
 
 #include <cuda.h>
 #include <stdio.h>
@@ -53,47 +52,7 @@ template<> inline bool getParam<bool>(std::string param, bool &var, int argc, ch
 }
 
 // opencv helpers
-void convert_layered_to_interleaved(float *aOut, const float *aIn, int w, int h, int nc)
-{
-    if (nc==1) { memcpy(aOut, aIn, w*h*sizeof(float)); return; }
-    size_t nOmega = (size_t)w*h;
-    for (int y=0; y<h; y++)
-    {
-        for (int x=0; x<w; x++)
-        {
-            for (int c=0; c<nc; c++)
-            {
-                aOut[(nc-1-c) + nc*(x + (size_t)w*y)] = aIn[x + (size_t)w*y + nOmega*c];
-            }
-        }
-    }
-}
 
-void convert_layered_to_mat(cv::Mat &mOut, const float *aIn)
-{
-    convert_layered_to_interleaved((float*)mOut.data, aIn, mOut.cols, mOut.rows, mOut.channels());
-}
-
-void convert_interleaved_to_layered(float *aOut, const float *aIn, int w, int h, int nc)
-{
-    if (nc==1) { memcpy(aOut, aIn, w*h*sizeof(float)); return; }
-    size_t nOmega = (size_t)w*h;
-    for (int y=0; y<h; y++)
-    {
-        for (int x=0; x<w; x++)
-        {
-            for (int c=0; c<nc; c++)
-            {
-                aOut[x + (size_t)w*y + nOmega*c] = aIn[(nc-1-c) + nc*(x + (size_t)w*y)];
-            }
-        }
-    }
-}
-
-void convert_mat_to_layered(float *aOut, const cv::Mat &mIn)
-{
-    convert_interleaved_to_layered(aOut, (float*)mIn.data, mIn.cols, mIn.rows, mIn.channels());
-}
 
 // cuda error checking
 string prev_file = "";
@@ -149,27 +108,6 @@ cudaDeviceProp queryDeviceProperties() {
   return bestProp;
 }
 
-void imagesc(std::string title, cv::Mat mat, int x, int y) {
-  double min,max;
-  cv::minMaxLoc(mat,&min,&max);
-
-  Mat scaled = mat;
-  Mat meanCols;
-  reduce(mat, meanCols, 0, CV_REDUCE_AVG );
-
-  Mat mean;
-  reduce(meanCols, mean, 1, CV_REDUCE_AVG);
-    
-  cout << "Max value: " << max << endl;
-  cout << "Mean value: " << mean.at<float>(0) << endl;
-  cout << "Min value: " << min << endl;
-    
-  if (std::abs(max) > 0.0000001f)
-    scaled /= max;
-
-  showImage(title, scaled, x,y);
-}
-
 char waitKey2(int delay, bool hint){
   char c;
   if(hint){
@@ -193,45 +131,7 @@ char waitKey2(int delay, bool hint){
   return c;  
 }
 
-void createOptimallyPaddedImageForDCT(const Mat& img, Mat& paddedImg, 
-				      int &paddingX, int &paddingY) {
-  // pad init if it is not divisible by 2
-  int maxVecSize = max(img.rows, img.cols);
-  int optVecSize = getOptimalDFTSize((maxVecSize+1)/2)*2;
 
-  paddingX = optVecSize - img.cols;
-  paddingY = optVecSize - img.rows;
-
-  int top, bottom, left, right;
-  top = bottom = paddingY / 2;
-  left = right = paddingX / 2;
-  bottom += paddingY % 2 == 1;  
-  right += paddingX % 2 == 1;
-
-  if (paddingX == 0 && paddingY == 0) {
-    paddedImg = img.clone();
-  }
-  else {
-    copyMakeBorder(img, paddedImg, top, bottom, left, right, BORDER_CONSTANT, Scalar(0));
-  }  
-}
-
-void showDepthImage(const string &wndTitle, const Mat& img, int posX, int posY, bool doResize) {
-  double min, max;
-  minMaxIdx(img, &min, &max);
-
-  Mat depthMap;
-  float scale = 255.0f / (max - min);
-  img.convertTo(depthMap, CV_8UC1, scale, -min*scale);
-
-  Mat heatMap;
-  applyColorMap(depthMap, heatMap, cv::COLORMAP_JET);
-
-  if (doResize)
-    resize(heatMap, heatMap, Size(), 0.5, 0.5);
-  
-  showImage(wndTitle, heatMap, posX, posY);
-}
 
 string getOSSeparator() {
 #ifdef _WIN32

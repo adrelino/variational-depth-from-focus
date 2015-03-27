@@ -16,7 +16,7 @@
 // ### Markus Schlaffer, markus.schlaffer@in.tum.de, p070
 
 #include <LinearizedADMM.cuh>
-#include <utils.cuh>
+#include <openCVHelpers.h>
 #include <vector>
 #include <cudaWrappers.h>
 #include <iostream>

@@ -100,9 +100,6 @@ template<typename T> bool getParam(std::string param, T &var, int argc, char **a
     return false;
 }
 
-void convert_mat_to_layered(float *aOut, const cv::Mat &mIn);
-void convert_layered_to_mat(cv::Mat &mOut, const float *aIn);
-
 typedef struct {
   int w;
   int h;
@@ -121,10 +118,7 @@ typedef struct {
 
 cudaDeviceProp queryDeviceProperties();
 void printTiming(CUDATimer &timer, const std::string& launchedKernel="");
-void imagesc(std::string title, cv::Mat mat, int x, int y);
-void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg, 
-				      int &paddingX, int &paddingY);
-void showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
+
 std::string getOSSeparator();
 std::vector<std::string> getAllImagesFromFolder(const char *dirname, int skipNthPicture=1);
 float getAverage(const std::vector<float> &v);

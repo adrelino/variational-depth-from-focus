@@ -41,4 +41,14 @@ std::string getImageType(int number);
 void checkLoadedImage(const cv::Mat& m, const char *fileName);
 void showImage(const std::string &title, const cv::Mat &mat, int x, int y);
 
+void convert_mat_to_layered(float *aOut, const cv::Mat &mIn);
+void convert_layered_to_mat(cv::Mat &mOut, const float *aIn);
+void convert_interleaved_to_layered(float *aOut, const float *aIn, int w, int h, int nc);
+void convert_layered_to_interleaved(float *aOut, const float *aIn, int w, int h, int nc);
+
+void imagesc(std::string title, cv::Mat mat, int x, int y);
+void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg, 
+				      int &paddingX, int &paddingY);
+void showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
+
 #endif

@@ -18,6 +18,8 @@
 #include <DataPreparator.cuh>
 
 #include <opencv2/core/core.hpp>
+#include <openCVHelpers.h>
+
 #include <cuda.h>
 #include <cudaWrappers.h>
 #include <iostream>
