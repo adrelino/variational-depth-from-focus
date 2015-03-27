@@ -9,6 +9,13 @@ find_package(OpenCV REQUIRED)
 # specify include directories
 include_directories(include/)
 
+# headers to show up in qt creator
+file(GLOB HEADERS
+    include/*.h
+    include/*.hpp
+    include/*.cuh
+)
+
 # sources
 set(SOURCES
     src/main.cu
@@ -39,6 +46,7 @@ else()
 cuda_add_executable(
   main
   ${SOURCES}
+  ${HEADERS}
   )  
 endif()
 
@@ -48,5 +56,16 @@ cuda_add_cublas_to_target(main)
 
 target_link_libraries(
   main
+  ${OpenCV_LIBS}
+  )
+
+add_executable(
+  compress
+  src/compress.cpp
+  src/openCVHelpers.cpp
+)
+
+target_link_libraries(
+  compress
   ${OpenCV_LIBS}
   )
