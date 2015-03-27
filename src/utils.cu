@@ -158,7 +158,7 @@ string getOSSeparator() {
 #endif
 }
 
-vector<string> getAllImagesFromFolder(const char *dirname) {
+vector<string> getAllImagesFromFolder(const char *dirname, int skipNthPicture) {
   DIR *dir = NULL;
   struct dirent *entry;
   vector<string> allImages;
@@ -186,7 +186,29 @@ vector<string> getAllImagesFromFolder(const char *dirname) {
 
   // sort string alphabetically
   std::sort(allImages.begin(), allImages.end());
-  return allImages;
+
+  // delete some pictures if desired
+  if (skipNthPicture > 1) {
+
+    // some sanity check
+    if (skipNthPicture >= allImages.size()) {
+      cerr << "You can not skip " << skipNthPicture << " since there are only " << allImages.size() 
+  	   << " pictures in your chosen folder.\nPlease adjust your parameter." << endl;
+      exit(1);
+    }
+    
+    vector<string> reduced;
+    for (size_t i = 0; i < allImages.size(); ++i) {
+      if ((i % skipNthPicture) == 0)
+	continue;
+      
+      reduced.push_back(allImages.at(i));
+    }
+    return reduced;
+  }
+  else {
+    return allImages;
+  }
 }
 
 void getAvailableGlobalMemory(size_t *free, size_t *total, bool print) {

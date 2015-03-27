@@ -61,7 +61,8 @@ public:
   DataPreparator(const char *dir, float minVal, float maxVal, MemoryLayout layout);
   virtual ~DataPreparator();
 
-  void determineSharpnessFromAllImages(const cudaDeviceProp& deviceProperties, bool usePageLockedMemory);
+  void determineSharpnessFromAllImages(const cudaDeviceProp& deviceProperties, bool usePageLockedMemory,
+       				       int skipNthPicture=1);
 
   // split this up in separate classes
   virtual cv::Mat findMaxSharpnessValues() = 0;

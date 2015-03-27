@@ -21,6 +21,7 @@
 #include <cuda.h>
 #include <cudaWrappers.h>
 #include <iostream>
+#include <new>
 
 using namespace std;
 using namespace cv;
@@ -83,7 +84,14 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
   cudaMalloc(&d_sharpnessCurImg, sharpnessBytes); CUDA_CHECK;
 
   // use here host allocated memory
-  l_sharpness = new float[sharpnessPixels * info.nrImgs];
+  try {
+    l_sharpness = new float[sharpnessPixels * info.nrImgs];
+  }
+  catch (bad_alloc &badAllocEx) {
+    cerr << "Can not allocate enough memory to store all sharpness values: " << badAllocEx.what() << endl;
+    cerr << "Aborting..." << endl;
+    exit(1);
+  }
 
   dim3 blockSize(32, 8, 1);
   dim3 gridSize((info.w + blockSize.x - 1) / blockSize.x, (info.h + blockSize.y - 1) / blockSize.y, 1);
@@ -233,8 +241,8 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
   cudaStreamDestroy(stream1);    
 }
 
-void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory) {
-  vector<string> imgFileNames = getAllImagesFromFolder(dirPath);
+void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, int skipNthPicture) {
+  vector<string> imgFileNames = getAllImagesFromFolder(dirPath, skipNthPicture);
 
   size_t nrImgs = imgFileNames.size();
   string imgFile = imgFileNames[0];

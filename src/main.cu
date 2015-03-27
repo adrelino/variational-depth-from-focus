@@ -82,6 +82,8 @@ bool useTensor3fClass = false;
 bool usePageLockedMemory = false;
 bool smoothGPU = true;
 
+int skipNthPicture = 1;
+
 // TODO: more error checking
 void checkPassedFolderPath(const string path) {
   if (path.empty()) {
@@ -114,7 +116,9 @@ void parseCmdLine(int argc, char **argv) {
   getParam("plotIterations", plotIterations, argc, argv);
   getParam("convIterations", convIterations, argc, argv);
   getParam("iterations", nrIterations, argc, argv);
-  getParam("lambda", lambda, argc, argv);  
+  getParam("lambda", lambda, argc, argv); 
+
+  getParam("skipNthPicture", skipNthPicture, argc, argv);
 }
 
 void wait(){
@@ -148,7 +152,7 @@ int main(int argc, char **argv) {
 
     DataPreparatorTensor3f *dataLoader = new DataPreparatorTensor3f(folderPath.c_str(), minVal, maxVal);
 
-    Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages();
+    Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages(skipNthPicture);
     showImage("Last Image in Sequence", lastImgInSeq, 50, 50); wait();
 
     int lastIndex=dataLoader->getInfoImgSeq().nrImgs - 1;
@@ -195,7 +199,7 @@ int main(int argc, char **argv) {
     
     cout << "Determine sharpness from images in " << folderPath << endl;
     methods->tic();
-    dataLoader->determineSharpnessFromAllImages(deviceProperties, usePageLockedMemory);
+    dataLoader->determineSharpnessFromAllImages(deviceProperties, usePageLockedMemory, skipNthPicture);
     cudaDeviceSynchronize();
     methods->toc("1-determineSharpness");
 
@@ -244,7 +248,6 @@ int main(int argc, char **argv) {
   methods->printAllTimings();
   total->printAllTimings();
 
-  showDepthImage("3-smoothed Depth Estimate", mSmoothDepthEstimateScaled, 500, 100, true);wait();  
   showDepthImage("Result", res, 250 , 250); 
 
   //require user input to exit

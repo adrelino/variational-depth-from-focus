@@ -63,7 +63,7 @@ DataPreparatorTensor3f::~DataPreparatorTensor3f() {
   }
 }
 
-Mat DataPreparatorTensor3f::determineSharpnessFromAllImages() {
+Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int skipNthPicture) {
   //in: nothing
   cout<<"DataPreparatorTensor3f::determineSharpnessFromAllImages"<<endl;
   methods->tic();
@@ -125,7 +125,13 @@ Mat DataPreparatorTensor3f::determineSharpnessFromAllImages() {
   cout << endl;
 
   for(int i = 0; i < nrImgs; ++i) {
-    //cout<<"iteration "<<i<<endl;
+    
+    if (skipNthPicture > 1) {
+      if ((i % skipNthPicture) == 0) {
+	continue;
+      }
+    }
+    
     cout << "\r" << flush;
     cout << "Loading picture into Host Memory: " << (i+1) << " from " << nrImgs;
 

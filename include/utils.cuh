@@ -58,7 +58,7 @@ void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg,
 				      int &paddingX, int &paddingY);
 void showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
 std::string getOSSeparator();
-std::vector<std::string> getAllImagesFromFolder(const char *dirname);
+std::vector<std::string> getAllImagesFromFolder(const char *dirname, int skipNthPicture=1);
 float getAverage(const std::vector<float> &v);
 void getAvailableGlobalMemory(size_t *free, size_t *total, bool print=false);
 void memprint();
