@@ -206,29 +206,3 @@ void memprint() {
   cudaMemGetInfo(&free,&total); CUDA_CHECK;
   printf("AvailableGlobalMemory: %0.5f / %0.5f MB\n",free/1e6f,total/1e6f);
 }
-
-void printSharpnessValues(float *l_sharpness, size_t x, size_t y, size_t w, size_t h, size_t n) {
-  cout << "Sharpness values at (y: " << y << ", x: " << x << "): ";
-  for(size_t i = 0; i < n; ++i) {
-    cout << l_sharpness[x + y*w + i*w*h] << ", ";
-  }
-  cout << endl;
-}
-
-// degree is polynomial degree!
-void printCoefficients(float *l_coef, size_t x, size_t y, size_t w, size_t h, size_t degree) {
-  cout << "Coefficient at (y: " << y << ", x: " << x << "): ";
-  for(size_t i = 0; i < degree+1; ++i) {
-    cout << l_coef[x + y*w + i*w*h] << ", ";
-  }
-  cout << endl;
-}
-
-// degree is polynomial degree! (not degree of the Derivatives.)
-void printDerivativeCoefficients(float *l_coefDeriv, size_t x, size_t y, size_t w, size_t h, size_t degree) {
-  cout << "Derivative Coefficient at (y: " << y << ", x: " << x << "): ";
-  for(size_t i = 0; i < degree; ++i) {
-    cout << l_coefDeriv[x + y*w + i*w*h] << ", ";    
-  }
-  cout << endl;
-}

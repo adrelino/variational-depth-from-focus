@@ -96,8 +96,4 @@ void memprint();
 
 char waitKey2(int delay, bool hint=true);
 
-void printSharpnessValues(float *l_coef, size_t x, size_t y, size_t w, size_t h, size_t n);
-void printCoefficients(float *l_coef, size_t x, size_t y, size_t w, size_t h, size_t degree);
-void printDerivativeCoefficients(float *l_coefDeriv, size_t x, size_t y, size_t w, size_t h, size_t degree);
-
 #endif
