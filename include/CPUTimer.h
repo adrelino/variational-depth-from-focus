@@ -56,7 +56,8 @@ class CPUTimer {
 
   void tic();
   timespec toc();
-  void toc(std::string name);
+  void toc(std::string name, bool printTiming=true);
+  float tocInSeconds();
 
   void printAllTimings();
 };

@@ -48,37 +48,6 @@
 #define CUDA_CHECK cuda_check(__FILE__,__LINE__)
 void cuda_check(std::string file, int line);
 
-// measuring time
-class Timer
-{
-    public:
-	Timer() : tStart(0), running(false), sec(0.f)
-	{
-	}
-	void start()
-	{
-		tStart = clock();
-		running = true;
-	}
-	void end()
-	{
-		if (!running) { sec = 0; return; }
-        cudaDeviceSynchronize();
-		clock_t tEnd = clock();
-		sec = (float)(tEnd - tStart) / CLOCKS_PER_SEC;
-		running = false;
-	}
-	float get()
-	{
-		if (running) end();
-		return sec;
-	}
-    private:
-	clock_t tStart;
-	bool running;
-	float sec;
-};
-
 // parameter processing
 template<typename T> bool getParam(std::string param, T &var, int argc, char **argv)
 {

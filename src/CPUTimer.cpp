@@ -78,16 +78,23 @@ timespec CPUTimer::toc() {
   return temp;
 }
 
-void CPUTimer::toc(std::string name){
+void CPUTimer::toc(std::string name, bool printTiming){
   timespec elapsedTimeCPUTimer = this->toc();
-  cout<<endl;
-  cout<<"=====  TIMING["<<name<<"] is ";
-  cout<< elapsedTimeCPUTimer.tv_sec << "." << elapsedTimeCPUTimer.tv_nsec << " s" << endl;          
-  cout << endl;
+
+  if (printTiming) {
+    cout<<endl;
+    cout<<"=====  TIMING["<<name<<"] is ";
+    cout<< elapsedTimeCPUTimer.tv_sec << "." << elapsedTimeCPUTimer.tv_nsec << " s" << endl;          
+    cout << endl;
+  }
 
   float seconds=elapsedTimeCPUTimer.tv_sec + elapsedTimeCPUTimer.tv_nsec / 1e9f;
-
   timingsMap[name]=seconds;
+}
+
+float CPUTimer::tocInSeconds() {
+  timespec elapsedTimeCPUTimer = this->toc();
+  return elapsedTimeCPUTimer.tv_sec + elapsedTimeCPUTimer.tv_nsec / 1e9f;
 }
 
 void CPUTimer::printAllTimings(){

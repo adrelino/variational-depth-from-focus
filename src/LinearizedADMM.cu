@@ -17,8 +17,11 @@
 
 #include <LinearizedADMM.cuh>
 #include <openCVHelpers.h>
-#include <vector>
+
+#include <CPUTimer.h>
 #include <cudaWrappers.h>
+
+#include <vector>
 #include <iostream>
 #include <cstdio>
 
@@ -225,8 +228,8 @@ cv::Mat LinearizedADMM::run(float *d_energyDerivative, size_t derivativeDegree, 
   vector<float> timeUpdateB;
   vector<float> timeOneIteration;
 
-  Timer t;
-  Timer iterationTimer;
+  CPUTimer t;
+  CPUTimer iterationTimer;
 
   // set lambda of laplace inversion class
   eyePlusLaplace->setLambda(lambda);
@@ -242,44 +245,38 @@ cv::Mat LinearizedADMM::run(float *d_energyDerivative, size_t derivativeDegree, 
   
   // dbg - just do it once
   for (size_t it = 0; it < maxIter; ++it) {
-    iterationTimer.start();
+    iterationTimer.tic();
 
     // copy d_u back to mat
-    t.start();
+    t.tic();
     // u is of type cv::Mat
     updateU(gridSize, blockSize, d_energyDerivative, derivativeDegree, lambda, tau, dataFidelityParam);
-    t.end();
-    timeUpdateU.push_back(t.get());
+    timeUpdateU.push_back(t.tocInSeconds());
     
     // threshold u so that u in [minVal, maxVal]
-    t.start();
+    t.tic();
     thresholdU(gridSize, blockSize, minVal, maxVal);
     cudaDeviceSynchronize(); CUDA_CHECK;
-    t.end();
-    timeThresholdU.push_back(t.get());
+    timeThresholdU.push_back(t.tocInSeconds());
 
     // calculate forward differences on updated u (aka u^(k+1))
-    t.start();
+    t.tic();
     calcUxUy(gridSize, blockSize, REPLICATE);
     cudaDeviceSynchronize(); CUDA_CHECK;
-    t.end();
-    timeCalcUxUy.push_back(t.get());
+    timeCalcUxUy.push_back(t.tocInSeconds());
 
     // update g (has closed form in isoShrinkage)
-    t.start();
+    t.tic();
     updateG(gridSize, blockSize, tau/lambda);
     cudaDeviceSynchronize(); CUDA_CHECK;
-    t.end();
-    timeUpdateG.push_back(t.get());
+    timeUpdateG.push_back(t.tocInSeconds());
 
     // update scaled dual variable b
-    t.start();
+    t.tic();
     updateB(gridSize, blockSize);
     cudaDeviceSynchronize(); CUDA_CHECK;
-    t.end();
-    timeUpdateB.push_back(t.get());
+    timeUpdateB.push_back(t.tocInSeconds());
 
-    // TODO(Dennis): incorporate interoperability with OpenGL!
     // do we visualize? - then copy stuff back
     if (plotIterations /*&& it % 50 == 0*/) {
       cudaMemcpy(l_u, d_u, nrBytes, cudaMemcpyDeviceToHost); CUDA_CHECK;
@@ -315,8 +312,7 @@ cv::Mat LinearizedADMM::run(float *d_energyDerivative, size_t derivativeDegree, 
       
       cudaDeviceSynchronize(); CUDA_CHECK;
     }
-    iterationTimer.end();
-    timeOneIteration.push_back(iterationTimer.get());
+    timeOneIteration.push_back(iterationTimer.tocInSeconds());
   }
   // do new line after the last iteration 
   cout << endl;
