@@ -15,120 +15,165 @@
 // ### Adrian Haarbach, haarbach@in.tum.de, p077
 // ### Markus Schlaffer, markus.schlaffer@in.tum.de, p070
 #include <iostream>
-#include <cstdio>
-#include <stdlib.h>
-#include <vector>
 
 #include <string>
 #include <algorithm>
 #include <cctype>
 
-#include <limits>
-
-// cuda stuff
 #include <cuda.h>
 #include <cuda_runtime.h>
 
 #include <utils.cuh>
-#include <common_kernels.cuh>
-#include <LaplaceInversion.cuh>
 #include <openCVHelpers.h>
-#include <CUDATimer.h>
-#include <cudaWrappers.h>
 
-// opencv stuff
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/contrib/contrib.hpp>
 
-// util functions for main.cu
-#include <utils.cuh>
 #include <LinearizedADMM.cuh>
+
 #include <DataPreparator.cuh>
 #include <LayeredMemory.cuh>
 #include <DataPreparatorTensor3f.cuh>
 
-// using clock_gettime
 #include <CPUTimer.h>
+#include <Parameters.h>
 
 using namespace std;
 using namespace cv;
 
 using namespace vdff;
 
-// general variables
-cudaDeviceProp deviceProperties;
-
-// absolute path to the image sequence
-string folderPath = "../samples/sim";
-
-// [minVal, maxVal] determines in which range we will do the
-// polynomial approximation later
-float minVal = -10.0f;
-float maxVal = 10.0f;
-size_t polynomialDegree = 6;
-
-// value to decrease the importance of sharp edges
-float denomRegu = 0.3f; //0.8f no holes
-
-float dataFidelityParam = 6.0f;  //2.5f no holes
-float dataDescentStep = 8.0f / dataFidelityParam;
-// show iteration steps?
-bool plotIterations = false;
-// nr iterations for ADMM algorithm
-size_t convIterations = 0;
-size_t nrIterations = 400;
-// lambda in ADMM procedure
-float lambda = 1.0f;
-int delay = 1;
-
-bool useTensor3fClass = false;
-
-bool usePageLockedMemory = false;
-bool smoothGPU = true;
-
-int skipNthPicture = 1;
-string exportFilename = "";
-
-void checkPassedFolderPath(const string path) {
+bool checkPassedFolderPath(const string path) {
   if (path.empty()) {
     cerr << "You have to deliver a valid (relative or absolute) path to a image sequence." << endl;
-    exit(1);
+    return false;
   }
+  return true;
 }
 
-void parseCmdLine(int argc, char **argv) {
-  Utils::getParam("dir", folderPath, argc, argv);
-  Utils::getParam("useTensor3fClass", useTensor3fClass, argc, argv);
-  Utils::getParam("delay", delay, argc, argv);
+// check command line for given parameters; returns false if something is not set correctly
+bool parseCmdLine(Parameters &params, int argc, char **argv) {
+  Utils::getParam("dir", params.folderPath, argc, argv);
+  if (!checkPassedFolderPath(params.folderPath)) {
+    return false;
+  }
 
-  Utils::getParam("smoothGPU", smoothGPU, argc, argv);
-  Utils::getParam("pageLocked", usePageLockedMemory, argc, argv);
-  
-  checkPassedFolderPath(folderPath);
+  Utils::getParam("useTensor3fClass", params.useTensor3fClass, argc, argv);
+  Utils::getParam("delay", params.delay, argc, argv);
 
-  Utils::getParam("minVal", minVal, argc, argv);
-  Utils::getParam("maxVal", maxVal, argc, argv);
-  Utils::getParam("denomRegu", denomRegu, argc, argv);
-  Utils::getParam("polyDegree", polynomialDegree, argc, argv);
+  Utils::getParam("smoothGPU", params.smoothGPU, argc, argv);
+  Utils::getParam("pageLocked", params.usePageLockedMemory, argc, argv);
+
+  Utils::getParam("minVal", params.minVal, argc, argv);
+  Utils::getParam("maxVal", params.maxVal, argc, argv);
+  Utils::getParam("denomRegu", params.denomRegu, argc, argv);
+  Utils::getParam("polyDegree", params.polynomialDegree, argc, argv);
 
   // if dataFidelity was set, make sure tau(dataDescentStep) stays up2date
-  Utils::getParam("dataFidelity", dataFidelityParam, argc, argv);
-  dataDescentStep = 8.0f / dataFidelityParam;
+  Utils::getParam("dataFidelity", params.dataFidelityParam, argc, argv);
+  params.dataDescentStep = 8.0f / params.dataFidelityParam;
+  Utils::getParam("descentStep", params.dataDescentStep, argc, argv);
+  Utils::getParam("convIterations", params.convIterations, argc, argv);
+  Utils::getParam("iterations", params.nrIterations, argc, argv);
+  Utils::getParam("lambda", params.lambda, argc, argv); 
 
-  Utils::getParam("descentStep", dataDescentStep, argc, argv);
+  Utils::getParam("useNthPicture", params.useNthPicture, argc, argv);
+  Utils::getParam("export", params.exportFilename, argc, argv);
 
-  Utils::getParam("plotIterations", plotIterations, argc, argv);
-  Utils::getParam("convIterations", convIterations, argc, argv);
-  Utils::getParam("iterations", nrIterations, argc, argv);
-  Utils::getParam("lambda", lambda, argc, argv); 
-
-  Utils::getParam("skipNthPicture", skipNthPicture, argc, argv);
-  Utils::getParam("export", exportFilename, argc, argv);
+  return true;
 }
 
-void wait(){
+// wait delay seconds
+void wait(int delay){
   openCVHelpers::waitKey2(delay);
+}
+
+
+DataPreparatorTensor3f* approximateSharpnessAndCreateDepthEstimateTensor3f(const Parameters &params,
+									   const cudaDeviceProp &deviceProperties,
+									   float **d_coefDerivative,
+									   Mat &mSmoothDepthEstimateScaled,
+									   Utils::InfoImgSeq &info) {
+  DataPreparatorTensor3f *dataLoader = new DataPreparatorTensor3f(params.folderPath.c_str(), params.minVal, params.maxVal);
+
+  Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages(params.useNthPicture);
+  int lastIndex=dataLoader->getInfoImgSeq().nrImgs - 1;
+
+
+  dataLoader->t_sharpness->download();
+
+  dataLoader->findMaxSharpnessValues();
+  dataLoader->t_noisyDepthEstimate->download();
+    
+  delete dataLoader->t_noisyDepthEstimate;
+  dataLoader->t_noisyDepthEstimate = NULL;
+  
+  dataLoader->scaleSharpnessValues(params.denomRegu);
+  dataLoader->approximateContrastValuesWithPolynomial(params.polynomialDegree);
+  dataLoader->smoothDepthEstimate();
+
+  //pass on interface imgs
+  *d_coefDerivative = dataLoader->t_coefDerivative->getDevicePtr();
+  mSmoothDepthEstimateScaled = dataLoader->smoothDepthEstimate_ScaleIntoPolynomialRange();
+  //end interface
+
+  delete dataLoader->t_sharpness;
+  // do not forget to set pointer to NULL
+  dataLoader->t_sharpness = NULL;
+
+  //from here on, we only need the following, so dont free them yet:
+  delete dataLoader->t_smoothDepthEstimate;
+  dataLoader->t_smoothDepthEstimate = NULL;
+  
+  info = dataLoader->getInfoImgSeq();    
+  return dataLoader;
+}
+
+DataPreparator* approximateSharpnessAndCreateDepthEstimate(const Parameters &params,
+							   const cudaDeviceProp &deviceProperties,
+							   float **d_coefDerivative,
+							   Mat &mSmoothDepthEstimateScaled,
+							   Utils::InfoImgSeq &info) {
+  CPUTimer t;
+  
+  DataPreparator *dataLoader = new LayeredMemory(params.folderPath.c_str(), params.minVal, params.maxVal);
+  
+  cout << "Determine sharpness from images in " << params.folderPath << endl;
+  t.tic();
+  dataLoader->determineSharpnessFromAllImages(deviceProperties, params.usePageLockedMemory,
+					      params.useNthPicture);
+  cudaDeviceSynchronize();
+  cout << "time elapsed: " << t.tocInSeconds() << " s" << endl;
+  
+  cout << endl << "Approximating contrast values" << endl;
+  t.tic();
+  *d_coefDerivative = dataLoader->calcPolyApproximations(params.polynomialDegree, params.denomRegu);
+  cudaDeviceSynchronize();
+  cout << "time elapsed: " << t.tocInSeconds() << " s" << endl;
+
+  cout << endl << "Creating smooth depth estimate" << endl;
+  t.tic();
+  mSmoothDepthEstimateScaled = dataLoader->smoothDepthEstimate(params.smoothGPU);
+  cudaDeviceSynchronize();
+  cout << "time elapsed: " << t.tocInSeconds() << " s" << endl;
+  
+  info = dataLoader->getInfoImgSeq();
+  return dataLoader;
+}
+
+void printGeneralParameters(const Parameters &params) {
+  cout << "================================== General Parameters ==============================" << endl;
+  cout << "Specified sequence folder: " << params.folderPath << endl;
+  cout << "Export filename: " << params.exportFilename << endl;
+  cout << "Use page locked memory: " << ((params.usePageLockedMemory) ? "True" : "False") << endl;
+  cout << "Use GPU to smooth depth estimate: " << ((params.smoothGPU) ? "True" : "False") << endl;
+  cout << "Use every n-th picture: " << params.useNthPicture << endl;
+  cout << "Use Tensor3f Class (experimental): " << ((params.useTensor3fClass) ? "True" : "False") << endl;
+  cout << "Delay: " << params.delay << endl;
+  cout << "minVal: " << params.minVal << endl;
+  cout << "maxVal: " << params.maxVal << endl;
+  cout << "Degree of polynomial: " << params.polynomialDegree << endl;
+  cout << "DenomRegu: " << params.denomRegu << endl;
+  cout << "====================================================================================" << endl;
 }
 
 int main(int argc, char **argv) {
@@ -137,131 +182,85 @@ int main(int argc, char **argv) {
   methods = new CPUTimer();
 
   // read in arguments from command-line
-  parseCmdLine(argc, argv);
+  Parameters params;
+  bool succ = parseCmdLine(params, argc, argv);
+  if (!succ) {
+    cerr << "Problem in parsing arguments. Aborting..." << endl;
+    exit(1);
+  }
+  printGeneralParameters(params);
 
+  cout << "\n================================== Executing =======================================" << endl;
   cudaDeviceReset(); CUDA_CHECK;
-
   // initialize CUDA context
   cudaDeviceSynchronize(); CUDA_CHECK;
   
   total->tic();
-  deviceProperties = Utils::queryDeviceProperties();
+  cudaDeviceProp deviceProperties = Utils::queryDeviceProperties();
 
   size_t freeStartup, totalStartup;
   Utils::getAvailableGlobalMemory(&freeStartup, &totalStartup);
 
   Mat mSmoothDepthEstimateScaled; //interface to pass to ADMM after our 2 different loading classes
-  float *d_coefDerivative;
+  float *d_coefDerivative = NULL; // will contain the coefficients of the polynomial for each pixel
   Utils::InfoImgSeq info;
 
-  if(useTensor3fClass){
+  DataPreparator *dataLoader = NULL;
+  DataPreparatorTensor3f *dataLoaderTensor3f = NULL;
+  
+  // load all images in the given folderPath, determine the sharpness of each image
+  // and then approximate the sharpness values via polynomials for each pixel.
+  // Additionally, create a smooth depth estimate, which serves as a starting point for the
+  // ADMM algorithm
 
-    DataPreparatorTensor3f *dataLoader = new DataPreparatorTensor3f(folderPath.c_str(), minVal, maxVal);
-
-    Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages(skipNthPicture);
-    openCVHelpers::showImage("Last Image in Sequence", lastImgInSeq, 50, 50); wait();
-
-    int lastIndex=dataLoader->getInfoImgSeq().nrImgs - 1;
-
-
-    dataLoader->t_sharpness->download();
-    openCVHelpers::showImage("Last Image Sharpness Measure", dataLoader->t_sharpness->getImageInSequence(lastIndex), 100, 100); wait();
-
-
-    dataLoader->findMaxSharpnessValues();
-    dataLoader->t_noisyDepthEstimate->download();
-    openCVHelpers::showDepthImage("Noisy Depth Estimate", dataLoader->t_noisyDepthEstimate->getMat(), 150, 150); wait();
-    
-    delete dataLoader->t_noisyDepthEstimate;
-
-
-    dataLoader->scaleSharpnessValues(denomRegu);
-
-
-
-    dataLoader->approximateContrastValuesWithPolynomial(polynomialDegree);
-
-
-    dataLoader->smoothDepthEstimate();
-
-    //pass on interface imgs
-    d_coefDerivative = dataLoader->t_coefDerivative->getDevicePtr();
-    mSmoothDepthEstimateScaled = dataLoader->smoothDepthEstimate_ScaleIntoPolynomialRange();
-    //end interface
-
-    openCVHelpers::showDepthImage("Smoothed Depth Estimate", mSmoothDepthEstimateScaled, 200, 200); wait();
-
-    delete dataLoader->t_sharpness;
-
-    //from here on, we only need the following, so dont free them yet:
-    //Tensor3f *t_coefDerivative;
-    //Tensor3f *t_smoothDepthEstimate; --> actually now, we save intermediate result on cpu, so can delete
-    delete dataLoader->t_smoothDepthEstimate;
-
-    info=dataLoader->getInfoImgSeq();
-  }else{
-
-    DataPreparator *dataLoader = new LayeredMemory(folderPath.c_str(), minVal, maxVal);
-    
-    cout << "Determine sharpness from images in " << folderPath << endl;
-    methods->tic();
-    dataLoader->determineSharpnessFromAllImages(deviceProperties, usePageLockedMemory, skipNthPicture);
-    cudaDeviceSynchronize();
-    methods->toc("1-determineSharpness");
-
-    cout << "Approximating contrast values" << endl;
-    methods->tic();
-    d_coefDerivative = dataLoader->calcPolyApproximations(polynomialDegree, denomRegu);
-    cudaDeviceSynchronize();
-    methods->toc("2-approxContrast");
-
-    methods->tic();
-    mSmoothDepthEstimateScaled = dataLoader->smoothDepthEstimate(smoothGPU);
-    cudaDeviceSynchronize();
-    methods->toc("3-depthInit");
-
-    info=dataLoader->getInfoImgSeq();
+  // Tensor3f is a convenience class, which is still in an experimental status; it does for example
+  // not yet work for larger datasets. Thus, right now, it should not be used.
+  if (params.useTensor3fClass) {
+    dataLoaderTensor3f = approximateSharpnessAndCreateDepthEstimateTensor3f(params, deviceProperties,
+									    &d_coefDerivative, mSmoothDepthEstimateScaled, info);
+  }
+  else {
+    dataLoader = approximateSharpnessAndCreateDepthEstimate(params, deviceProperties,
+							    &d_coefDerivative, mSmoothDepthEstimateScaled, info);
   }
 
-  cout << "============================== Parameters for ADMM ================================================" << endl;
-  cout << "DataFidelityParam: " << dataFidelityParam << endl;
-  cout << "DataDescentStep: " << dataDescentStep << endl;
-  cout << "plotIterations: " << (plotIterations ? "True" : "False") << endl;
-  cout << "convIterations: " << convIterations << endl;
-  cout << "nrIterations: " << nrIterations << endl;
-  cout << "lambda: " << lambda << endl;
-  
-  cout << "--------------------------------  Starting ADMM  --------------------------------------------------" << endl;
-  
+  cout << endl << "Running ADMM" << endl;
+  cout << "Parameters:" << endl;
+  cout << "\tDataFidelityParam: " << params.dataFidelityParam << endl;
+  cout << "\tDataDescentStep: " << params.dataDescentStep << endl;
+  cout << "\tconvIterations: " << params.convIterations << endl;
+  cout << "\tnrIterations: " << params.nrIterations << endl;
+  cout << "\tlambda: " << params.lambda << endl;
+  cout << endl;
 
   methods->tic();
-  LinearizedADMM admm(mSmoothDepthEstimateScaled.cols, mSmoothDepthEstimateScaled.rows, minVal, maxVal);
+  LinearizedADMM admm(mSmoothDepthEstimateScaled.cols, mSmoothDepthEstimateScaled.rows,
+		      params.minVal, params.maxVal);
   
-  Mat res = admm.run(d_coefDerivative, polynomialDegree, dataFidelityParam, dataDescentStep,
-  		     mSmoothDepthEstimateScaled, plotIterations, convIterations, nrIterations, lambda);
+  Mat res = admm.run(d_coefDerivative, params.polynomialDegree, params.dataFidelityParam,
+		     params.dataDescentStep, mSmoothDepthEstimateScaled, false,
+		     params.convIterations, params.nrIterations, params.lambda);
 
   cudaDeviceSynchronize(); CUDA_CHECK;
-
-  methods->toc("4-timingADMM"); 
-
-  cout << "====================================================================================================" << endl;  
-
-  total->toc("5-Total");
-
-  cout<<"======ALLTimings======="<<endl;
-  cout<<"Dir:          "<<folderPath<<endl;
-  info.print();
-  methods->printAllTimings();
-  total->printAllTimings();
+  cout << "time elapsed: " << methods->tocInSeconds() << " s" << endl; 
+  cout << "======================================================================" <<endl;
+  cout << "Total elapsed time: " << total->tocInSeconds() << " s" << endl;
 
   Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 250 , 250);
   //require user input to exit
   waitKey(0);
 
   // if user specified an export file, we save the result
-  if(!exportFilename.empty()) {
-    openCVHelpers::exportImage(resHeatMap, exportFilename);
+  if(!params.exportFilename.empty()) {
+    openCVHelpers::exportImage(resHeatMap, params.exportFilename);
   }
 
+  if (dataLoaderTensor3f) {
+    delete dataLoaderTensor3f;
+  }
+
+  if (dataLoader) {
+    delete dataLoader;
+  }
   return 0;
 }

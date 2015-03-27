@@ -40,7 +40,6 @@ namespace vdff {
   }
 
   DataPreparator::~DataPreparator() {
-
     if (d_coefDerivative != NULL) {
       cudaFree(d_coefDerivative);
       d_coefDerivative = NULL;
@@ -243,8 +242,8 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     cudaStreamDestroy(stream1);
   }
 
-  void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, int skipNthPicture) {
-    vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath, skipNthPicture);
+  void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, int useNthPicture) {
+    vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath, useNthPicture);
 
     size_t nrImgs = imgFileNames.size();
     string imgFile = imgFileNames[0];
@@ -355,22 +354,19 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
     // check how much memory we got available at the moment
     size_t freeMemory, totalMemory;
-    Utils::getAvailableGlobalMemory(&freeMemory, &totalMemory,true);
+    Utils::getAvailableGlobalMemory(&freeMemory, &totalMemory);
 
     size_t bytesPerPixel = info.nrImgs * sizeof(float);
     size_t bytesPerRow = info.w * bytesPerPixel;
 
     size_t rowsPerKernel = floorf(static_cast<float>(freeMemory) / bytesPerRow);
 
-    cout << "First determined rows per kernel: " << rowsPerKernel << endl;
-  
     // compute space for needed arrays
     size_t sizeNeededForMaxValues = info.w * rowsPerKernel * sizeof(float);
     size_t sizeNeededForMaxIndices = info.w * rowsPerKernel * sizeof(int);
     size_t actualFreeMemory = freeMemory - sizeNeededForMaxValues - sizeNeededForMaxIndices;
 
     size_t actualRowsPerKernel = floorf(static_cast<float>(actualFreeMemory) / bytesPerRow) - 10;
-    cout << "Actual rows per kernel: " << actualRowsPerKernel << endl;  
     size_t nrChunks = ceilf(static_cast<float>(info.h) / actualRowsPerKernel);
 
     float *d_sharpness;
@@ -378,7 +374,6 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     float *d_maxIndices;
 
     if (nrChunks == 1) {
-      cout << "Everything fits into one chunk no need to split up!" << endl;
       // allocate memory for sharpness values
       size_t totalBytes = bytesPerRow*info.h;
       cudaMalloc(&d_sharpness, totalBytes); CUDA_CHECK;
@@ -537,7 +532,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       cudaMemset(d_maxIndices, 0, info.w*info.h*sizeof(float)); CUDA_CHECK;
 
       size_t freeMemory, totalMemory;
-      Utils::getAvailableGlobalMemory(&freeMemory, &totalMemory, true);
+      Utils::getAvailableGlobalMemory(&freeMemory, &totalMemory);
 
       size_t bytesPerPixel = info.nrImgs * sizeof(float);
       size_t bytesPerRow = info.w * bytesPerPixel;
@@ -547,7 +542,6 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       size_t nrChunks = ceilf(static_cast<float>(info.h) / rowsPerKernel);
 
       if (nrChunks == 1) {
-	cout << "Everything fits into one chunk no need to split up!" << endl;
 	// allocate memory for sharpness values
 	size_t totalBytes = bytesPerRow*info.h;
 	cudaMalloc(&d_sharpness, totalBytes); CUDA_CHECK;

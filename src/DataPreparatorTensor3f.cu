@@ -39,38 +39,32 @@ namespace vdff {
   }
 
   DataPreparatorTensor3f::~DataPreparatorTensor3f() {
-    printf("[DESTRUCTOR] ~DataPreparatorTensor3f:\n");
-
     delete methods;
 
     if(t_imgSeq != 0){
-      printf("t_imgSeq\n");
       delete t_imgSeq;
     }
+    
     if(t_sharpness != 0){
-      printf("t_sharpness\n");
       delete t_sharpness;
     }
     if(t_noisyDepthEstimate != 0){
-      printf("t_noisyDepthEstimate\n");
       delete t_noisyDepthEstimate;
     }
     if(t_maxValues != 0){
-      printf("t_maxValues\n");
       delete t_maxValues;
     }
     if (t_coefDerivative != 0) {
-      printf("t_coefDerivative\n");
       delete t_coefDerivative;
     }
   }
 
-  Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int skipNthPicture) {
+  Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int useNthPicture) {
     //in: nothing
     cout<<"DataPreparatorTensor3f::determineSharpnessFromAllImages"<<endl;
     methods->tic();
 
-    vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath);
+    vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath, useNthPicture);
 
     size_t nrImgs = imgFileNames.size();
     string imgFile = imgFileNames[0];
@@ -125,13 +119,6 @@ namespace vdff {
     cout << endl;
 
     for(int i = 0; i < nrImgs; ++i) {
-    
-      if (skipNthPicture > 1) {
-	if ((i % skipNthPicture) == 0) {
-	  continue;
-	}
-      }
-    
       cout << "\r" << flush;
       cout << "Loading picture into Host Memory: " << (i+1) << " from " << nrImgs;
 
@@ -163,6 +150,7 @@ namespace vdff {
     cout << endl;
 
     delete t_imgSeq; //saves memory, but if we load (TODO) tiled for big images, we need to keep at least the host part of this
+    t_imgSeq = NULL;
 
     methods->toc("determineSharpnessFromAllImages");
 
@@ -272,7 +260,6 @@ namespace vdff {
     return tmpInverse*X.t();
   }
 
-  // TODO(Dennis): exchange scale with min/max Value like used in LinearizedADMM!
   void DataPreparatorTensor3f::approximateContrastValuesWithPolynomial(size_t degree) {
     //in: sharpness
 

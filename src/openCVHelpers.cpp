@@ -355,7 +355,7 @@ namespace vdff {
       }
 
       if (validFilename) {
-	cout << "Saving result under " << output << endl;
+	cout << "Saving computed depth map under " << output << endl;
 	imwrite(output, img);
       }
     }
