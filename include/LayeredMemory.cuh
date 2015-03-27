@@ -20,19 +20,20 @@
 
 #include <DataPreparator.cuh>
 
-class LayeredMemory : public DataPreparator {
-protected:
-  virtual void copySharpnessImageToDevice(float *d_sharpness, size_t idx);
-  virtual void copySmoothSharpnessImageToHost(float *d_smooth, size_t idx);
-  virtual void copyMLAPIntoMemory(float *d_MLAPEstimate, size_t index);
-  virtual void copyMLAPIntoPageLockedMemory(float *d_MLAPEstimate, size_t index, cudaStream_t streamID=0);  
+namespace vdff {
+  class LayeredMemory : public DataPreparator {
+  protected:
+    virtual void copySharpnessImageToDevice(float *d_sharpness, size_t idx);
+    virtual void copySmoothSharpnessImageToHost(float *d_smooth, size_t idx);
+    virtual void copyMLAPIntoMemory(float *d_MLAPEstimate, size_t index);
+    virtual void copyMLAPIntoPageLockedMemory(float *d_MLAPEstimate, size_t index, cudaStream_t streamID=0);  
 
-public:
-  LayeredMemory(const char *dir, float minVal, float maxVal);
-  ~LayeredMemory();
+  public:
+    LayeredMemory(const char *dir, float minVal, float maxVal);
+    ~LayeredMemory();
 
-  virtual cv::Mat findMaxSharpnessValues();
-  virtual void scaleSharpnessValues(float denomRegu);  
-};
-
+    virtual cv::Mat findMaxSharpnessValues();
+    virtual void scaleSharpnessValues(float denomRegu);  
+  };
+}
 #endif

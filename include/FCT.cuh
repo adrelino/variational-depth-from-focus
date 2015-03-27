@@ -23,29 +23,30 @@
 #include <id.h>
 #include <common_kernels.cuh>
 
-class FCT {
-private:
-  //calculations vars
-  cuFloatComplex *d_v;
-  float *d_vreal;
+namespace vdff {
+  class FCT {
+  private:
+    //calculations vars
+    cuFloatComplex *d_v;
+    float *d_vreal;
 
-  //precompiled vars
-  cufftHandle planf, plani;
-  cuFloatComplex *d_roots;
-  size_t *d_v_index;
+    //precompiled vars
+    cufftHandle planf, plani;
+    cuFloatComplex *d_roots;
+    size_t *d_v_index;
 
-  //parameters
-  dim3 blockSize;
-  dim3 gridSize;
-  int w,h;
+    //parameters
+    dim3 blockSize;
+    dim3 gridSize;
+    int w,h;
   
 
-public:
-  FCT(int width, int height);
-  ~FCT();
+  public:
+    FCT(int width, int height);
+    ~FCT();
 
-  void fct(float *d_input, float *d_output);
-  void ifct(float *d_input, float *d_output);
-};
-
+    void fct(float *d_input, float *d_output);
+    void ifct(float *d_input, float *d_output);
+  };
+}
 #endif

@@ -32,177 +32,177 @@
 using namespace std;
 using namespace cv;
 
-// parameter processing: template specialization for T=bool
-template<> inline bool getParam<bool>(std::string param, bool &var, int argc, char **argv)
-{
-    const char *c_param = param.c_str();
-    for(int i=argc-1; i>=1; i--)
-    {
-        if (argv[i][0]!='-') continue;
-        if (strcmp(argv[i]+1, c_param)==0)
-        {
-            if (!(i+1<argc) || argv[i+1][0]=='-') { var = true; return true; }
-            std::stringstream ss;
-            ss << argv[i+1];
-            ss >> var;
-            return (bool)ss;
-        }
-    }
-    return false;
-}
-
-// opencv helpers
-
-
-// cuda error checking
-string prev_file = "";
-int prev_line = 0;
-void cuda_check(string file, int line)
-{
+namespace vdff {
+  string prev_file = "";
+  int prev_line = 0;
+  void cuda_check(string file, int line)
+  {
     cudaError_t e = cudaGetLastError();
     if (e != cudaSuccess)
-    {
-        cout << endl << file << ", line " << line << ": " << cudaGetErrorString(e) << " (" << e << ")" << endl;
-        if (prev_line>0) cout << "Previous CUDA call:" << endl << prev_file << ", line " << prev_line << endl;
-        exit(1);
-    }
+      {
+	cout << endl << file << ", line " << line << ": " << cudaGetErrorString(e) << " (" << e << ")" << endl;
+	if (prev_line>0) cout << "Previous CUDA call:" << endl << prev_file << ", line " << prev_line << endl;
+	exit(1);
+      }
     prev_file = file;
     prev_line = line;
-}
+  }
 
-void printTiming(CUDATimer &timer, const string& launchedKernel) {
-  cout << "Elapsed time";
-  
-  if (!launchedKernel.empty())
-    cout << " for " << launchedKernel;
-
-  cout << ": " << timer.toc() << " ms" << endl;
-}
-
-float getAverage(const vector<float> &v) {
-  float sum = 0.0f;
-  for (size_t i = 0; i < v.size(); ++i)
-    sum += v[i];
-  
-  return sum / v.size();
-}
-
-cudaDeviceProp queryDeviceProperties() {
-  int nrDevices;
-  cudaGetDeviceCount(&nrDevices); CUDA_CHECK;
-
-  cudaDeviceProp bestProp;
-  // check for largest constant memory
-  size_t maxConstantMemory = 0;
-
-  for(int i = 0; i < nrDevices; ++i) {
-    cudaDeviceProp prop;
-    cudaGetDeviceProperties(&prop, i);
-
-    if (prop.totalConstMem > maxConstantMemory) {
-      maxConstantMemory = prop.totalConstMem;
-      bestProp = prop;
+  namespace Utils {
+    // parameter processing: template specialization for T=bool
+    template<> inline bool getParam<bool>(std::string param, bool &var, int argc, char **argv)
+    {
+      const char *c_param = param.c_str();
+      for(int i=argc-1; i>=1; i--)
+	{
+	  if (argv[i][0]!='-') continue;
+	  if (strcmp(argv[i]+1, c_param)==0)
+	    {
+	      if (!(i+1<argc) || argv[i+1][0]=='-') { var = true; return true; }
+	      std::stringstream ss;
+	      ss << argv[i+1];
+	      ss >> var;
+	      return (bool)ss;
+	    }
+	}
+      return false;
     }
-  }
 
-  return bestProp;
-}
+    void printTiming(CUDATimer &timer, const string& launchedKernel) {
+      cout << "Elapsed time";
+  
+      if (!launchedKernel.empty())
+	cout << " for " << launchedKernel;
 
-char waitKey2(int delay, bool hint){
-  char c;
-  if(hint){
-    cout << "delay="<<delay<<endl;
-    if(delay < 0){
-      cout<<"[CONSOLE]: press key to continue"<<endl;
-    }else if (delay == 0) {
-      cout<<"[OpenCV WINDOW]: press key to continue"<<endl;
-    }else{
-      cout<<"[GENERAL]: waiting for "<< delay <<" ms"<<endl;
+      cout << ": " << timer.toc() << " ms" << endl;
     }
-  }
-  int wait=delay;
-  if(wait<0) wait*=-1;
-  c=waitKey(wait);
-  if(delay<0){
-    std::string input;
-    std::getline(std::cin,input);
-    c=*input.c_str();
-  }
-  return c;  
-}
+
+    float getAverage(const vector<float> &v) {
+      float sum = 0.0f;
+      for (size_t i = 0; i < v.size(); ++i)
+	sum += v[i];
+  
+      return sum / v.size();
+    }
+
+    cudaDeviceProp queryDeviceProperties() {
+      int nrDevices;
+      cudaGetDeviceCount(&nrDevices); CUDA_CHECK;
+
+      cudaDeviceProp bestProp;
+      // check for largest constant memory
+      size_t maxConstantMemory = 0;
+
+      for(int i = 0; i < nrDevices; ++i) {
+	cudaDeviceProp prop;
+	cudaGetDeviceProperties(&prop, i);
+
+	if (prop.totalConstMem > maxConstantMemory) {
+	  maxConstantMemory = prop.totalConstMem;
+	  bestProp = prop;
+	}
+      }
+
+      return bestProp;
+    }
+
+    char waitKey2(int delay, bool hint){
+      char c;
+      if(hint){
+	cout << "delay="<<delay<<endl;
+	if(delay < 0){
+	  cout<<"[CONSOLE]: press key to continue"<<endl;
+	}else if (delay == 0) {
+	  cout<<"[OpenCV WINDOW]: press key to continue"<<endl;
+	}else{
+	  cout<<"[GENERAL]: waiting for "<< delay <<" ms"<<endl;
+	}
+      }
+      int wait=delay;
+      if(wait<0) wait*=-1;
+      c=waitKey(wait);
+      if(delay<0){
+	std::string input;
+	std::getline(std::cin,input);
+	c=*input.c_str();
+      }
+      return c;  
+    }
 
 
 
-string getOSSeparator() {
+    string getOSSeparator() {
 #ifdef _WIN32
-  return "\\";
+      return "\\";
 #else
-  return "/";
+      return "/";
 #endif
-}
+    }
 
-vector<string> getAllImagesFromFolder(const char *dirname, int skipNthPicture) {
-  DIR *dir = NULL;
-  struct dirent *entry;
-  vector<string> allImages;
+    vector<string> getAllImagesFromFolder(const char *dirname, int skipNthPicture) {
+      DIR *dir = NULL;
+      struct dirent *entry;
+      vector<string> allImages;
 
-  dir = opendir(dirname);
+      dir = opendir(dirname);
 
-  if (!dir) {
-    cerr << "Could not open directory " << dirname << ". Exiting..." << endl;
-    exit(1);
-  }
+      if (!dir) {
+	cerr << "Could not open directory " << dirname << ". Exiting..." << endl;
+	exit(1);
+      }
   
-  const string sep = getOSSeparator();
-  string dirStr = string(dirname);
+      const string sep = getOSSeparator();
+      string dirStr = string(dirname);
 
-  while(entry = readdir(dir)) {
-    if (strstr(entry->d_name, ".png") ||
-	strstr(entry->d_name, ".jpg") ||
-	strstr(entry->d_name, ".tif")) {
-      string fileName(entry->d_name);
-      string fullPath = dirStr + sep + fileName;
-      allImages.push_back(fullPath);
-    }
-  }
-  closedir(dir);
+      while(entry = readdir(dir)) {
+	if (strstr(entry->d_name, ".png") ||
+	    strstr(entry->d_name, ".jpg") ||
+	    strstr(entry->d_name, ".tif")) {
+	  string fileName(entry->d_name);
+	  string fullPath = dirStr + sep + fileName;
+	  allImages.push_back(fullPath);
+	}
+      }
+      closedir(dir);
 
-  // sort string alphabetically
-  std::sort(allImages.begin(), allImages.end());
+      // sort string alphabetically
+      std::sort(allImages.begin(), allImages.end());
 
-  // delete some pictures if desired
-  if (skipNthPicture > 1) {
+      // delete some pictures if desired
+      if (skipNthPicture > 1) {
 
-    // some sanity check
-    if (skipNthPicture >= allImages.size()) {
-      cerr << "You can not skip " << skipNthPicture << " since there are only " << allImages.size() 
-  	   << " pictures in your chosen folder.\nPlease adjust your parameter." << endl;
-      exit(1);
-    }
+	// some sanity check
+	if (skipNthPicture >= allImages.size()) {
+	  cerr << "You can not skip " << skipNthPicture << " since there are only " << allImages.size() 
+	       << " pictures in your chosen folder.\nPlease adjust your parameter." << endl;
+	  exit(1);
+	}
     
-    vector<string> reduced;
-    for (size_t i = 0; i < allImages.size(); ++i) {
-      if ((i % skipNthPicture) == 0)
-	continue;
+	vector<string> reduced;
+	for (size_t i = 0; i < allImages.size(); ++i) {
+	  if ((i % skipNthPicture) == 0)
+	    continue;
       
-      reduced.push_back(allImages.at(i));
+	  reduced.push_back(allImages.at(i));
+	}
+	return reduced;
+      }
+      else {
+	return allImages;
+      }
     }
-    return reduced;
-  }
-  else {
-    return allImages;
-  }
-}
 
-void getAvailableGlobalMemory(size_t *free, size_t *total, bool print) {
-  cudaMemGetInfo(free, total); CUDA_CHECK;
-  if(print){
-    printf("AvailableGlobalMemory: %0.5f / %0.5f MB\n",*free/1e6f,*total/1e6f);
-  }
-}
+    void getAvailableGlobalMemory(size_t *free, size_t *total, bool print) {
+      cudaMemGetInfo(free, total); CUDA_CHECK;
+      if(print){
+	printf("AvailableGlobalMemory: %0.5f / %0.5f MB\n",*free/1e6f,*total/1e6f);
+      }
+    }
 
-void memprint() {
-  size_t free,total;
-  cudaMemGetInfo(&free,&total); CUDA_CHECK;
-  printf("AvailableGlobalMemory: %0.5f / %0.5f MB\n",free/1e6f,total/1e6f);
+    void memprint() {
+      size_t free,total;
+      cudaMemGetInfo(&free,&total); CUDA_CHECK;
+      printf("AvailableGlobalMemory: %0.5f / %0.5f MB\n",free/1e6f,total/1e6f);
+    }
+  }
 }

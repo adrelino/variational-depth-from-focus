@@ -38,27 +38,29 @@
 #include <sys/time.h>
 #endif
 
-class CPUTimer {
- private:
-  timespec startTime;
-  timespec endTime;
+namespace vdff {
+  class CPUTimer {
+  private:
+    timespec startTime;
+    timespec endTime;
 
-  bool startWasSet;
-  bool stopWasSet;
+    bool startWasSet;
+    bool stopWasSet;
 
-  void getTime(struct timespec *ts);
+    void getTime(struct timespec *ts);
 
-  std::map<std::string,float> timingsMap;
+    std::map<std::string,float> timingsMap;
 
- public:
-  CPUTimer();
-  ~CPUTimer();
+  public:
+    CPUTimer();
+    ~CPUTimer();
 
-  void tic();
-  timespec toc();
-  void toc(std::string name, bool printTiming=true);
-  float tocInSeconds();
+    void tic();
+    timespec toc();
+    void toc(std::string name, bool printTiming=true);
+    float tocInSeconds();
 
-  void printAllTimings();
-};
+    void printAllTimings();
+  };
+}
 #endif

@@ -51,6 +51,8 @@
 using namespace std;
 using namespace cv;
 
+using namespace vdff;
+
 // general variables
 cudaDeviceProp deviceProperties;
 
@@ -93,36 +95,36 @@ void checkPassedFolderPath(const string path) {
 }
 
 void parseCmdLine(int argc, char **argv) {
-  getParam("dir", folderPath, argc, argv);
-  getParam("useTensor3fClass", useTensor3fClass, argc, argv);
-  getParam("delay", delay, argc, argv);
+  Utils::getParam("dir", folderPath, argc, argv);
+  Utils::getParam("useTensor3fClass", useTensor3fClass, argc, argv);
+  Utils::getParam("delay", delay, argc, argv);
 
-  getParam("smoothGPU", smoothGPU, argc, argv);
-  getParam("pageLocked", usePageLockedMemory, argc, argv);
-
+  Utils::getParam("smoothGPU", smoothGPU, argc, argv);
+  Utils::getParam("pageLocked", usePageLockedMemory, argc, argv);
+  
   checkPassedFolderPath(folderPath);
 
-  getParam("minVal", minVal, argc, argv);
-  getParam("maxVal", maxVal, argc, argv);
-  getParam("denomRegu", denomRegu, argc, argv);
-  getParam("polyDegree", polynomialDegree, argc, argv);
+  Utils::getParam("minVal", minVal, argc, argv);
+  Utils::getParam("maxVal", maxVal, argc, argv);
+  Utils::getParam("denomRegu", denomRegu, argc, argv);
+  Utils::getParam("polyDegree", polynomialDegree, argc, argv);
 
   // if dataFidelity was set, make sure tau(dataDescentStep) stays up2date
-  getParam("dataFidelity", dataFidelityParam, argc, argv);
+  Utils::getParam("dataFidelity", dataFidelityParam, argc, argv);
   dataDescentStep = 8.0f / dataFidelityParam;
 
-  getParam("descentStep", dataDescentStep, argc, argv);
+  Utils::getParam("descentStep", dataDescentStep, argc, argv);
 
-  getParam("plotIterations", plotIterations, argc, argv);
-  getParam("convIterations", convIterations, argc, argv);
-  getParam("iterations", nrIterations, argc, argv);
-  getParam("lambda", lambda, argc, argv); 
+  Utils::getParam("plotIterations", plotIterations, argc, argv);
+  Utils::getParam("convIterations", convIterations, argc, argv);
+  Utils::getParam("iterations", nrIterations, argc, argv);
+  Utils::getParam("lambda", lambda, argc, argv); 
 
-  getParam("skipNthPicture", skipNthPicture, argc, argv);
+  Utils::getParam("skipNthPicture", skipNthPicture, argc, argv);
 }
 
 void wait(){
-  waitKey2(delay);
+  Utils::waitKey2(delay);
 }
 
 int main(int argc, char **argv) {
@@ -139,32 +141,32 @@ int main(int argc, char **argv) {
   cudaDeviceSynchronize(); CUDA_CHECK;
   
   total->tic();
-  deviceProperties = queryDeviceProperties();
+  deviceProperties = Utils::queryDeviceProperties();
 
   size_t freeStartup, totalStartup;
-  getAvailableGlobalMemory(&freeStartup, &totalStartup);
+  Utils::getAvailableGlobalMemory(&freeStartup, &totalStartup);
 
   Mat mSmoothDepthEstimateScaled; //interface to pass to ADMM after our 2 different loading classes
   float *d_coefDerivative;
-  InfoImgSeq info;
+  Utils::InfoImgSeq info;
 
   if(useTensor3fClass){
 
     DataPreparatorTensor3f *dataLoader = new DataPreparatorTensor3f(folderPath.c_str(), minVal, maxVal);
 
     Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages(skipNthPicture);
-    showImage("Last Image in Sequence", lastImgInSeq, 50, 50); wait();
+    openCVHelpers::showImage("Last Image in Sequence", lastImgInSeq, 50, 50); wait();
 
     int lastIndex=dataLoader->getInfoImgSeq().nrImgs - 1;
 
 
     dataLoader->t_sharpness->download();
-    showImage("Last Image Sharpness Measure", dataLoader->t_sharpness->getImageInSequence(lastIndex), 100, 100); wait();
+    openCVHelpers::showImage("Last Image Sharpness Measure", dataLoader->t_sharpness->getImageInSequence(lastIndex), 100, 100); wait();
 
 
     dataLoader->findMaxSharpnessValues();
     dataLoader->t_noisyDepthEstimate->download();
-    showDepthImage("Noisy Depth Estimate", dataLoader->t_noisyDepthEstimate->getMat(), 150, 150); wait();
+    openCVHelpers::showDepthImage("Noisy Depth Estimate", dataLoader->t_noisyDepthEstimate->getMat(), 150, 150); wait();
     
     delete dataLoader->t_noisyDepthEstimate;
 
@@ -183,7 +185,7 @@ int main(int argc, char **argv) {
     mSmoothDepthEstimateScaled = dataLoader->smoothDepthEstimate_ScaleIntoPolynomialRange();
     //end interface
 
-    showDepthImage("Smoothed Depth Estimate", mSmoothDepthEstimateScaled, 200, 200); wait();
+    openCVHelpers::showDepthImage("Smoothed Depth Estimate", mSmoothDepthEstimateScaled, 200, 200); wait();
 
     delete dataLoader->t_sharpness;
 
@@ -248,7 +250,7 @@ int main(int argc, char **argv) {
   methods->printAllTimings();
   total->printAllTimings();
 
-  showDepthImage("Result", res, 250 , 250); 
+  openCVHelpers::showDepthImage("Result", res, 250 , 250); 
 
   //require user input to exit
   waitKey(0); 
