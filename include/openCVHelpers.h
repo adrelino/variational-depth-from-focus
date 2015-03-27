@@ -51,7 +51,8 @@ namespace vdff {
     void imagesc(std::string title, cv::Mat mat, int x, int y);
     void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg, 
 					  int &paddingX, int &paddingY);
-    void showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
+    cv::Mat showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
+    void exportImage(const cv::Mat &img, const std::string &fileName);
   }
 }
 #endif

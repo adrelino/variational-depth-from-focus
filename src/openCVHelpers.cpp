@@ -137,7 +137,7 @@ namespace vdff {
       cv::imshow(wTitle, mat);
     }
 
-    void showDepthImage(const string &wndTitle, const Mat& img, int posX, int posY, bool doResize) {
+    Mat showDepthImage(const string &wndTitle, const Mat& img, int posX, int posY, bool doResize) {
       double min, max;
       minMaxIdx(img, &min, &max);
 
@@ -152,6 +152,8 @@ namespace vdff {
 	resize(heatMap, heatMap, Size(), 0.5, 0.5);
   
       showImage(wndTitle, heatMap, posX, posY);
+
+      return heatMap;
     }
 
     void createOptimallyPaddedImageForDCT(const Mat& img, Mat& paddedImg, 
@@ -238,6 +240,37 @@ namespace vdff {
     void convert_mat_to_layered(float *aOut, const cv::Mat &mIn)
     {
       convert_interleaved_to_layered(aOut, (float*)mIn.data, mIn.cols, mIn.rows, mIn.channels());
+    }
+
+    void exportImage(const Mat &img, const string &fileName) {
+      bool validFilename = true;
+      string suffix;
+      string output;
+    
+      string::size_type idx = fileName.find_last_of(".");
+      if (idx == string::npos) {
+	output = fileName + ".png";
+      }
+      else {
+	suffix = fileName.substr(idx + 1);
+	std::transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
+
+	if (suffix.compare("png") == 0 ||
+	    suffix.compare("jpg") == 0 ||
+	    suffix.compare("jpeg") == 0) {
+	  output = fileName;
+	}
+	else {
+	  validFilename = false;
+	  cerr << "Allowed file extensions are only .png, .jpg or .jpeg. Please choose one of them as extension.\n" 
+	       << "Your specified file extension ." << suffix << " is not supported and the resulting depth map can not be saved." << endl;
+	}
+      }
+
+      if (validFilename) {
+	cout << "Saving result under " << output << endl;
+	imwrite(output, img);
+      }
     }
   }
 }

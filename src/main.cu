@@ -18,8 +18,11 @@
 #include <cstdio>
 #include <stdlib.h>
 #include <vector>
+
 #include <string>
 #include <algorithm>
+#include <cctype>
+
 #include <limits>
 
 // cuda stuff
@@ -85,8 +88,8 @@ bool usePageLockedMemory = false;
 bool smoothGPU = true;
 
 int skipNthPicture = 1;
+string exportFilename = "";
 
-// TODO: more error checking
 void checkPassedFolderPath(const string path) {
   if (path.empty()) {
     cerr << "You have to deliver a valid (relative or absolute) path to a image sequence." << endl;
@@ -121,6 +124,7 @@ void parseCmdLine(int argc, char **argv) {
   Utils::getParam("lambda", lambda, argc, argv); 
 
   Utils::getParam("skipNthPicture", skipNthPicture, argc, argv);
+  Utils::getParam("export", exportFilename, argc, argv);
 }
 
 void wait(){
@@ -250,9 +254,14 @@ int main(int argc, char **argv) {
   methods->printAllTimings();
   total->printAllTimings();
 
-  openCVHelpers::showDepthImage("Result", res, 250 , 250); 
-
+  Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 250 , 250);
   //require user input to exit
-  waitKey(0); 
+  waitKey(0);
+
+  // if user specified an export file, we save the result
+  if(!exportFilename.empty()) {
+    openCVHelpers::exportImage(resHeatMap, exportFilename);
+  }
+
   return 0;
 }
