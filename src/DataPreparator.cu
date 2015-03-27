@@ -22,6 +22,8 @@
 #include <cudaWrappers.h>
 #include <iostream>
 
+#include "openCVHelpers.h"
+
 using namespace std;
 using namespace cv;
 
@@ -61,7 +63,7 @@ DataPreparator::~DataPreparator() {
 
 void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<string> &imgFileNames, const Mat& firstImage,
 								 int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-								 size_t nrPixels, const int imgLoadFlag, const int diffW, const int diffH) {
+                                 size_t nrPixels, const int diffW, const int diffH) {
   cout << "Executing with a single stream" << endl;
   Mat curImg = firstImage.clone();
   int numberChannelsImage = curImg.channels();
@@ -96,10 +98,8 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
 
     if (i != 0) {
       imgFile = imgFileNames[i];
-      curImg = imread(imgFileNames[i], imgLoadFlag);
+      curImg = imreadFloat(imgFileNames[i]);
     }
-    curImg.convertTo(curImg, CV_32F, 1.0f/255.0f);
-
     // check if we got the same size, before the (possible) padding!
     assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
 
@@ -123,7 +123,7 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
 
 void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector<string> &imgFileNames, const Mat& firstImage,
 								    int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-								    size_t nrPixels, const int imgLoadFlag, const int diffW, const int diffH) {
+                                    size_t nrPixels, const int diffW, const int diffH) {
   cout << "Executing with 2 streams" << endl;
   Mat curImg = firstImage.clone();
   int numberChannelsImage = curImg.channels();
@@ -171,10 +171,8 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
     if (i != 0) {
       imgFile = imgFileNames[i];
-      curImg = imread(imgFileNames[i], imgLoadFlag);
+      curImg = imreadFloat(imgFileNames[i]);
     }
-    curImg.convertTo(curImg, CV_32F, 1.0f/255.0f);
-
     // check if we got the same size, before the (possible) padding!
     assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
 
@@ -189,9 +187,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
     if (isIPlusOneValid) {
       imgFile = imgFileNames[iPlusOne];
-      curImg = imread(imgFileNames[iPlusOne], imgLoadFlag);
-
-      curImg.convertTo(curImg, CV_32F, 1.0f/255.0f);
+      curImg = imreadFloat(imgFileNames[iPlusOne]);
 
       // check if we got the same size, before the (possible) padding!
       assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());      
@@ -239,9 +235,7 @@ void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &devic
   size_t nrImgs = imgFileNames.size();
   string imgFile = imgFileNames[0];
 
-  const int imgLoadFlag = CV_LOAD_IMAGE_ANYDEPTH;  
-
-  Mat curImg = imread(imgFileNames[0], imgLoadFlag);
+  Mat curImg = imreadFloat(imgFileNames[0]);
   int w = curImg.cols;
   int h = curImg.rows;
   int nc = curImg.channels();
@@ -278,12 +272,12 @@ void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &devic
     useMultipleStreams = false;
     determineSharpnessFromAllImagesSingleStream(imgFileNames, curImg,
   						paddingTop, paddingBottom, paddingLeft, paddingRight,
-  						nrPixels, imgLoadFlag, diffW, diffH);
+                        nrPixels, diffW, diffH);
   } else {
     useMultipleStreams = true;    
     determineSharpnessFromAllImagesMultipleStreams(imgFileNames, curImg,
   						   paddingTop, paddingBottom, paddingLeft, paddingRight,
-  						   nrPixels, imgLoadFlag, diffW, diffH);    
+                           nrPixels, diffW, diffH);
   }
 }
 

@@ -51,11 +51,11 @@ protected:
 
   void determineSharpnessFromAllImagesMultipleStreams(const std::vector<std::string> &imgFileNames, const cv::Mat& firstImage,
 						      int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-						      size_t nrPixels, const int imgLoadFlag, const int diffW, const int diffH);
+                              size_t nrPixels, const int diffW, const int diffH);
   
   void determineSharpnessFromAllImagesSingleStream(const std::vector<std::string> &imgFileNames, const cv::Mat& firstImage,
 						   int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-						   size_t nrPixels, const int imgLoadFlag, const int diffW, const int diffH);
+                           size_t nrPixels, const int diffW, const int diffH);
 
 public:
   DataPreparator(const char *dir, float minVal, float maxVal, MemoryLayout layout);

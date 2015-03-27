@@ -22,6 +22,7 @@
 #include <cudaWrappers.h>
 #include <iostream>
 #include <helper.h>
+#include "openCVHelpers.h"
 
 using namespace std;
 using namespace cv;
@@ -73,9 +74,7 @@ Mat DataPreparatorTensor3f::determineSharpnessFromAllImages() {
   size_t nrImgs = imgFileNames.size();
   string imgFile = imgFileNames[0];
 
-  const int imgLoadFlag = CV_LOAD_IMAGE_ANYDEPTH;  
-
-  Mat curImg = imread(imgFileNames[0], imgLoadFlag);
+  Mat curImg = imreadFloat(imgFileNames[0]);
   int w = curImg.cols;
   int h = curImg.rows;
   int nc = curImg.channels();
@@ -132,10 +131,8 @@ Mat DataPreparatorTensor3f::determineSharpnessFromAllImages() {
     if (i != 0) {
       imgFile = imgFileNames[i];
       //cout<<"before reading: "<<imgFile<<endl;
-      curImg = imread(imgFile, imgLoadFlag);
+      curImg = imreadFloat(imgFile);
     }
-    //cout<<"before converting"<<endl;
-    curImg.convertTo(curImg, CV_32F, 1.0f/255.0f);
 
     // check if we got the same size, before the (possible) padding!
     assert(w == curImg.cols && h == curImg.rows && nc == curImg.channels());
