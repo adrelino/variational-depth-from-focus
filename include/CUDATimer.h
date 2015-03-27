@@ -21,23 +21,24 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-class CUDATimer {
- private:
-  cudaEvent_t startTime;
-  cudaEvent_t stopTime;
-  cudaStream_t stream;
+namespace vdff {
+  class CUDATimer {
+  private:
+    cudaEvent_t startTime;
+    cudaEvent_t stopTime;
+    cudaStream_t stream;
 
-  bool startWasSet;
-  bool stopWasSet;
+    bool startWasSet;
+    bool stopWasSet;
   
- public:
-  CUDATimer();
-  ~CUDATimer();
+  public:
+    CUDATimer();
+    ~CUDATimer();
 
-  // starts timer
-  void tic(cudaStream_t streamID = 0);
-  // stops timer and returns measured time in milliseconds
-  float toc();
-};
-
+    // starts timer
+    void tic(cudaStream_t streamID = 0);
+    // stops timer and returns measured time in milliseconds
+    float toc();
+  };
+}
 #endif

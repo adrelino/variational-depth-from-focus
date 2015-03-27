@@ -21,48 +21,46 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <string>
-
-#include <sys/types.h>
+#include <iostream>
 #include <vector>
-
-#include <opencv2/core/core.hpp>
-
 #include <CUDATimer.h>
 #include <stdio.h>
 
-typedef struct {
-  int w;
-  int h;
-  int nc;
-} ImgInfo;
-
-typedef struct {
-  int w;
-  int h;
-  int nc;
-  int nrImgs;
-  void print(){
-  	  printf("InfoImqSeq:   [%d x %d x (%d * %d)] [w x h x (nc * nrImgs)]\n",w,h,nc,nrImgs);
-  };
-} InfoImgSeq;
-
-cudaDeviceProp queryDeviceProperties();
-void printTiming(CUDATimer &timer, const std::string& launchedKernel="");
-void imagesc(std::string title, cv::Mat mat, int x, int y);
-void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg, 
-				      int &paddingX, int &paddingY);
-void showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
-#include "loading.h"
-//std::string getOSSeparator();
-//std::vector<std::string> getAllImagesFromFolder(const char *dirname);
-float getAverage(const std::vector<float> &v);
-void getAvailableGlobalMemory(size_t *free, size_t *total, bool print=false);
-void memprint();
-
-char waitKey2(int delay, bool hint=true);
-
-void printSharpnessValues(float *l_coef, size_t x, size_t y, size_t w, size_t h, size_t n);
-void printCoefficients(float *l_coef, size_t x, size_t y, size_t w, size_t h, size_t degree);
-void printDerivativeCoefficients(float *l_coefDeriv, size_t x, size_t y, size_t w, size_t h, size_t degree);
-
+namespace vdff {
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
+
+  // cuda error checking
+#define CUDA_CHECK cuda_check(__FILE__,__LINE__)
+  void cuda_check(std::string file, int line);
+
+  namespace Utils {
+
+    typedef struct {
+      int w;
+      int h;
+      int nc;
+    } ImgInfo;
+
+    typedef struct {
+      int w;
+      int h;
+      int nc;
+      int nrImgs;
+      void print(){
+	printf("InfoImqSeq:   [%d x %d x (%d * %d)] [w x h x (nc * nrImgs)]\n",w,h,nc,nrImgs);
+      };
+    } InfoImgSeq;
+
+    cudaDeviceProp queryDeviceProperties();
+    void printTiming(CUDATimer &timer, const std::string& launchedKernel="");
+
+    float getAverage(const std::vector<float> &v);
+    void getAvailableGlobalMemory(size_t *free, size_t *total, bool print=false);
+    void memprint();
+  }
+}
+#endif
+
+  

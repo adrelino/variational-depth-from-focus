@@ -27,17 +27,19 @@
 #include <Windows.h>
 //#include <time.h>
 
-/*
- * Structure defined by POSIX.1b to be like a timeval.
- */
-struct timespec {
-	time_t	tv_sec;		/* seconds */
-	long	tv_nsec;	/* and nanoseconds */
-};
+namespace vdff {
+  /*
+   * Structure defined by POSIX.1b to be like a timeval.
+   */
+  struct timespec {
+    time_t	tv_sec;		/* seconds */
+    long	tv_nsec;	/* and nanoseconds */
+  };
 
 
-LARGE_INTEGER getFILETIMEoffset();
+  LARGE_INTEGER getFILETIMEoffset();
 
-int clock_gettime(struct timespec *tv);
+  int clock_gettime(struct timespec *tv);
+}
 
 #endif 
