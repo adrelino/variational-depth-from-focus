@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <sys/stat.h>
+
 using namespace vdff;
 using namespace std;
 using namespace Utils;
@@ -31,7 +33,7 @@ int main(int argc, char **argv) {
     getParam("type", type, argc, argv);
 
     if(type != "jpg" && type != "png"){
-        cout<<"wront type"<<endl;
+        cout<<"unsupported type"<<endl;
         exit(1);
     }
 
@@ -63,6 +65,10 @@ int main(int argc, char **argv) {
 
 
     vector<string> images = Utils::getAllImagesFromFolder(indir.c_str());
+    if(images.size()>0){
+        int status = mkdir(outdir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        cout<<"mkdir status: "<<status<<endl;
+    }
 
     for(int i=0; i<images.size(); i+=step){
         cv::Mat image;
@@ -85,32 +91,29 @@ int main(int argc, char **argv) {
         ss<<outdir<<getOSSeparator()<<name<<"."<<type;
         string outname=ss.str();
 
-        openCVHelpers::convertToFloat(image);
-        if(debug) cv::imshow("out",image);
-        cout<<"out: ";
-        openCVHelpers::imgInfo(image);
-        cout<<"\t path: "<<outname<<endl;
-
 
         std::vector<int> params;
 
         //http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html#imwrite
         //Only 8-bit (or 16-bit unsigned (CV_16U) in case of PNG, JPEG 2000, and TIFF) single-channel or 3-channel (with ‘BGR’ channel order) images can be saved using this function.
         if(type == "jpg"){
-           int maxRange = MAX_RANGE(image);
-           if(maxRange>255){
-               double scaleFactor = 255/maxRange; // this is 255/65234-1 or is it 1/256 fro 16->8 bits??
-               image.convertTo(image,CV_8U,scaleFactor); //jpg only supports 8 bit,
-           }
            params.push_back(CV_IMWRITE_JPEG_QUALITY);
            params.push_back(compr);   // that's percent, so 100 == no compression, 1 == full
-        }else{
+           int maxRange = MAX_RANGE(image);
+           if(maxRange>255){
+               double scaleFactor = 255.0f/maxRange; // this is 255/65234-1 or is it 1/256 fro 16->8 bits??
+               image.convertTo(image,CV_8U,scaleFactor); //jpg only supports 8 bit,
+           }
+        }else if (type == "png"){
            params.push_back(CV_IMWRITE_PNG_COMPRESSION);
            params.push_back(compr);   // that's compression level, 9 == full , 0 == none
         }
 
-        //TODO jpeg-2000:
-        //Durch die Wavelet-Transformation vermeidet JPEG 2000 im Gegensatz zu JPEG-1 störende Blockartefakte bei hoher Kompression. Stattdessen tendieren die Bilder zu Unschärfeartefakten sowie Schatten an harten Kontrasten. JPEG 2000 eignet sich besonders für große Bilder, da hier die größeren Blöcke bei Waveletfiltern Vorteile gegenüber den recht kleinen 8×8-Blöcken der DCT von JPEG-1 haben. Bei kleineren Bildern kann, je nach Bildinhalt, auch JPEG-1 einen Qualitätsvorteil bieten.
+        if(debug) cv::imshow("out",image);
+        cout<<"out: ";
+        openCVHelpers::imgInfo(image);
+        cout<<"\t path: "<<outname<<endl;
+
         //imwrite needs 0->255 or 0->256*256-1
         cv::imwrite(outname,image,params);
 
