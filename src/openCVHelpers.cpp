@@ -26,86 +26,84 @@ using namespace std;
 namespace vdff {
 
   namespace Utils {
-      // parameter processing: template specialization for T=bool
-      template<> inline bool getParam<bool>(std::string param, bool &var, int argc, char **argv)
-      {
-        const char *c_param = param.c_str();
-        for(int i=argc-1; i>=1; i--)
-      {
-        if (argv[i][0]!='-') continue;
-        if (strcmp(argv[i]+1, c_param)==0)
-          {
-            if (!(i+1<argc) || argv[i+1][0]=='-') { var = true; return true; }
-            std::stringstream ss;
-            ss << argv[i+1];
-            ss >> var;
-            return (bool)ss;
-          }
+    // parameter processing: template specialization for T=bool
+    template<> inline bool getParam<bool>(std::string param, bool &var, int argc, char **argv, bool printParam)
+    {
+      const char *c_param = param.c_str();
+      for(int i=argc-1; i>=1; i--)
+	{
+	  if (argv[i][0]!='-') continue;
+	  if (strcmp(argv[i]+1, c_param)==0)
+	    {
+	      if (!(i+1<argc) || argv[i+1][0]=='-') { var = true; return true; }
+	      std::stringstream ss;
+	      ss << argv[i+1];
+	      ss >> var;
+	      return (bool)ss;
+	    }
+	}
+      return false;
+    }
+
+
+    string getOSSeparator() {
+#ifdef _WIN32
+      return "\\";
+#else
+      return "/";
+#endif
+    }
+
+    vector<string> getAllImagesFromFolder(const char *dirname, int useNthPicture) {
+      DIR *dir = NULL;
+      struct dirent *entry;
+      vector<string> allImages;
+
+      dir = opendir(dirname);
+
+      if (!dir) {
+	cerr << "Could not open directory " << dirname << ". Exiting..." << endl;
+	exit(1);
       }
-        return false;
+
+      const string sep = getOSSeparator();
+      string dirStr = string(dirname);
+
+      while(entry = readdir(dir)) {
+	if (strstr(entry->d_name, ".png") ||
+	    strstr(entry->d_name, ".jpg") ||
+	    strstr(entry->d_name, ".jpeg") ||	    
+	    strstr(entry->d_name, ".tif")) {
+	  string fileName(entry->d_name);
+	  string fullPath = dirStr + sep + fileName;
+	  allImages.push_back(fullPath);
+	}
       }
+      closedir(dir);
 
+      // sort string alphabetically
+      std::sort(allImages.begin(), allImages.end());
 
-  string getOSSeparator() {
-  #ifdef _WIN32
-    return "\\";
-  #else
-    return "/";
-  #endif
-  }
+      // delete some pictures if desired
+      if (useNthPicture > 1) {
 
-  vector<string> getAllImagesFromFolder(const char *dirname, int skipNthPicture) {
-    DIR *dir = NULL;
-    struct dirent *entry;
-    vector<string> allImages;
+	// some sanity check
+	if (useNthPicture >= allImages.size()) {
+	  cerr << "You can not skip " << useNthPicture << " since there are only " << allImages.size()
+	       << " pictures in your chosen folder.\nPlease adjust your parameter." << endl;
+	  exit(1);
+	}
 
-    dir = opendir(dirname);
-
-    if (!dir) {
-  cerr << "Could not open directory " << dirname << ". Exiting..." << endl;
-  exit(1);
+	vector<string> reduced;
+	for (size_t i = 0; i < allImages.size(); i += useNthPicture) {
+	  reduced.push_back(allImages.at(i));
+	}
+	return reduced;
+      }
+      else {
+	return allImages;
+      }
     }
-
-    const string sep = getOSSeparator();
-    string dirStr = string(dirname);
-
-    while(entry = readdir(dir)) {
-  if (strstr(entry->d_name, ".png") ||
-      strstr(entry->d_name, ".jpg") ||
-      strstr(entry->d_name, ".tif")) {
-    string fileName(entry->d_name);
-    string fullPath = dirStr + sep + fileName;
-    allImages.push_back(fullPath);
-  }
-    }
-    closedir(dir);
-
-    // sort string alphabetically
-    std::sort(allImages.begin(), allImages.end());
-
-    // delete some pictures if desired
-    if (skipNthPicture > 1) {
-
-  // some sanity check
-  if (skipNthPicture >= allImages.size()) {
-    cerr << "You can not skip " << skipNthPicture << " since there are only " << allImages.size()
-         << " pictures in your chosen folder.\nPlease adjust your parameter." << endl;
-    exit(1);
-  }
-
-  vector<string> reduced;
-  for (size_t i = 0; i < allImages.size(); ++i) {
-    if ((i % skipNthPicture) == 0)
-      continue;
-
-    reduced.push_back(allImages.at(i));
-  }
-  return reduced;
-    }
-    else {
-  return allImages;
-    }
-  }
 
   } //NS Utils
 
@@ -398,31 +396,30 @@ Mat imreadFloat(string filename,bool grayscale){
     convertToFloat(original);
     //imgInfo(original);
     return original;
-
-      }
+}
 
 char waitKey2(int delay, bool hint){
-  char c;
-  if(hint){
-cout << "delay="<<delay<<endl;
-if(delay < 0){
-  cout<<"[CONSOLE]: press key to continue"<<endl;
-}else if (delay == 0) {
-  cout<<"[OpenCV WINDOW]: press key to continue"<<endl;
-}else{
-  cout<<"[GENERAL]: waiting for "<< delay <<" ms"<<endl;
-}
-  }
-  int wait=delay;
-  if(wait<0) wait*=-1;
-  c=waitKey(wait);
-  if(delay<0){
-std::string input;
-std::getline(std::cin,input);
-c=*input.c_str();
-  }
-  return c;
-}
+      char c;
+      if(hint){
+	cout << "delay="<<delay<<endl;
+	if(delay < 0){
+	  cout<<"[CONSOLE]: press key to continue"<<endl;
+	}else if (delay == 0) {
+	  cout<<"[OpenCV WINDOW]: press key to continue"<<endl;
+	}else{
+	  cout<<"[GENERAL]: waiting for "<< delay <<" ms"<<endl;
+	}
+      }
+      int wait=delay;
+      if(wait<0) wait*=-1;
+      c=waitKey(wait);
+      if(delay<0){
+	std::string input;
+	std::getline(std::cin,input);
+	c=*input.c_str();
+      }
+      return c;
+    }
 
-} //NS openCVHelpers
+  } //NS openCVHelpers
 } //NS vdff

@@ -129,7 +129,7 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
     cudaFree(d_sharpnessCurImg);
   
     delete[] l_img;
-  }
+}
 
 void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector<string> &imgFileNames, const Mat& firstImage,
 								    int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
@@ -159,8 +159,6 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     float *d_sharpnessCurImg0, *d_sharpnessCurImg1;
     cudaMalloc(&d_sharpnessCurImg0, sharpnessBytes); CUDA_CHECK;
     cudaMalloc(&d_sharpnessCurImg1, sharpnessBytes); CUDA_CHECK;
-
-    cout << "Creating cuda stream" << endl;
 
     cudaStream_t stream0;
     cudaStream_t stream1;
@@ -199,8 +197,6 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       if (isIPlusOneValid) {
     imgFile = imgFileNames[iPlusOne];
     curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne],grayscale);
-
-
 
     // check if we got the same size, before the (possible) padding!
     assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
@@ -454,6 +450,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 	  bytesToProcess = 0;
 	}
       }
+      cout << endl;
       assert(processedRows == info.h);
     }
 

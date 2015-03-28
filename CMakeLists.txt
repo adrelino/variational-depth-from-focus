@@ -11,14 +11,14 @@ include_directories(include/)
 
 # headers to show up in qt creator
 file(GLOB HEADERS
-    include/*.h
-    include/*.hpp
-    include/*.cuh
+    include/*.h$
+    include/*.hpp$
+    include/*.cuh$
 )
 
 # sources
 set(SOURCES
-    src/main.cu
+    src/vdff.cu
     src/common_kernels.cu
     src/LaplaceInversion.cu
     src/FCT.cu
@@ -37,24 +37,24 @@ set(SOURCES
 # this will be the main entry point for the project
 if (MSVC)
 cuda_add_executable(
-  main
+  vdff
   ${SOURCES}
   src/wintime.cpp
   )    
 else()
 cuda_add_executable(
-  main
+  vdff
   ${SOURCES}
   ${HEADERS}
   )  
 endif()
 
 
-cuda_add_cufft_to_target(main)
-cuda_add_cublas_to_target(main)
+cuda_add_cufft_to_target(vdff)
+cuda_add_cublas_to_target(vdff)
 
 target_link_libraries(
-  main
+  vdff
   ${OpenCV_LIBS}
   )
 
