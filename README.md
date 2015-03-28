@@ -99,7 +99,7 @@ click on this message and specify the path to
 your/path/to/opencv/build
 ```
 Everything should now work smoothly and then you can open the generated "Variational_depth_from_focus.sln" in Visual Studio, which can be found in the build folder. In Visual Studio, exclude "ALL_BUILD" and "ZERO_CHECK" from the project,
-right-click "main" and select "Set as Startup Project".
+right-click "vdff" and select "Set as Startup Project".
 
 The project should now compile successful. If the compiler complains that it can not find "dirent.h", you have to download the windows implementation of the header file from here  
 http://www.softagalleria.net/dirent.php  
@@ -113,7 +113,7 @@ C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
 #### Quickstart
 If you just run
 ```sh
-./main
+./vdff
 ```
 then our code uses the included focus sequence with appropriate default parameters.
 The focus sequence was generated using the Defocus simulation from
@@ -122,7 +122,7 @@ http://www.sayonics.com/downloads.html
 #### Advanced
 You can evaluate your own image sequence by specifying its locaton to the executable via the "-dir" switch, e.g.
 ```sh
-./main -dir your/path/to/imgs
+./vdff -dir your/path/to/imgs
 ```
 All pictures of your sequence have to reside in the specified folder; pictures located in sub-folders are
 ignored. Currently supported file formats are JPEG, TIFF and PNG.
@@ -140,6 +140,7 @@ denomRegu | float | 0.3 | regularizer used to decrease importance of sharp edges
 nrIterations | int | 400 | nr. of iterations of the ADMM algorithm
 convIterations | int | 0 | *TODO*
 lambda | float | 1.0 | parameter used in ADMM algorithm *TODO*
+grayscale | bool | 0 | convert image to grayscale before further processing
 
 ### Datasets
 #### ARRI&reg; - Dataset
@@ -153,5 +154,5 @@ The dataset of the paper is available under the following link:
 
 unzip them and then run with the -dir option:
 ```sh
-./main -dir <DIR>
+./vdff -dir <DIR>
 ```
