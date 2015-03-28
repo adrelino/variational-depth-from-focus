@@ -68,3 +68,15 @@ target_link_libraries(
   compress
   ${OpenCV_LIBS}
   )
+
+
+add_executable(
+  compare
+  src/compare.cpp
+  src/openCVHelpers.cpp
+)
+
+target_link_libraries(
+  compare
+  ${OpenCV_LIBS}
+  )

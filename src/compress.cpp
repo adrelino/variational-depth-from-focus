@@ -32,11 +32,6 @@ int main(int argc, char **argv) {
     string type="jpg";
     getParam("type", type, argc, argv);
 
-    if(type != "jpg" && type != "png"){
-        cout<<"unsupported type"<<endl;
-        exit(1);
-    }
-
 //    /* 8bit, color or not */
 //        CV_LOAD_IMAGE_UNCHANGED  =-1,
 //    /* 8bit, gray */
@@ -107,14 +102,21 @@ int main(int argc, char **argv) {
         }else if (type == "png"){
            params.push_back(CV_IMWRITE_PNG_COMPRESSION);
            params.push_back(compr);   // that's compression level, 9 == full , 0 == none
+        }else if (type == "exr"){
+            //exr can save 32 bit float
+            openCVHelpers::convertToFloat(image);
+        }else{
+            cout<<"unsupported type"<<endl;
+            exit(1);
         }
+
 
         if(debug) cv::imshow("out",image);
         cout<<"out: ";
         openCVHelpers::imgInfo(image);
         cout<<"\t path: "<<outname<<endl;
 
-        //imwrite needs 0->255 or 0->256*256-1
+        //imwrite needs 0->255 or 0->256*256-1 (jpg 8bit, png 8/16bit)   or 0.0->1.0 float (exr 32 bit)
         cv::imwrite(outname,image,params);
 
         if(debug){
