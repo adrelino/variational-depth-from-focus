@@ -59,7 +59,7 @@ namespace vdff {
     }
   }
 
-  Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int useNthPicture) {
+  Mat DataPreparatorTensor3f::determineSharpnessFromAllImages(int useNthPicture, bool grayscale) {
     //in: nothing
     cout<<"DataPreparatorTensor3f::determineSharpnessFromAllImages"<<endl;
     methods->tic();
@@ -69,7 +69,7 @@ namespace vdff {
     size_t nrImgs = imgFileNames.size();
     string imgFile = imgFileNames[0];
 
-  Mat curImg = openCVHelpers::imreadFloat(imgFileNames[0]);
+  Mat curImg = openCVHelpers::imreadFloat(imgFileNames[0],grayscale);
   int w = curImg.cols;
   int h = curImg.rows;
   int nc = curImg.channels();
@@ -125,7 +125,7 @@ namespace vdff {
     if (i != 0) {
       imgFile = imgFileNames[i];
       //cout<<"before reading: "<<imgFile<<endl;
-      curImg = openCVHelpers::imreadFloat(imgFile);
+      curImg = openCVHelpers::imreadFloat(imgFile,grayscale);
     }
 
       // check if we got the same size, before the (possible) padding!

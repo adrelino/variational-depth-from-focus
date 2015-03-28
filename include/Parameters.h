@@ -34,6 +34,8 @@ namespace vdff {
     int useNthPicture;
     std::string exportFilename;
 
+    bool grayscale;
+
   Parameters() : folderPath("../samples/sim"),
       minVal(-10.0f),
       maxVal(10.0f),
@@ -48,7 +50,8 @@ namespace vdff {
       usePageLockedMemory(false),
       smoothGPU(true),
       useNthPicture(1),
-      exportFilename("")
+      exportFilename(""),
+      grayscale(false)
     {
       dataDescentStep = 8.0 / dataFidelityParam;
     }

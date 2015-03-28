@@ -66,7 +66,7 @@ namespace vdff {
 
 void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<string> &imgFileNames, const Mat& firstImage,
 								 int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-                                 size_t nrPixels, const int diffW, const int diffH) {
+                                 size_t nrPixels, const int diffW, const int diffH,bool grayscale) {
   cout << "Executing with a single stream" << endl;
   Mat curImg = firstImage.clone();
   int numberChannelsImage = curImg.channels();
@@ -108,7 +108,7 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
 
     if (i != 0) {
       imgFile = imgFileNames[i];
-      curImg = openCVHelpers::imreadFloat(imgFileNames[i]);
+      curImg = openCVHelpers::imreadFloat(imgFileNames[i],grayscale);
     }
     // check if we got the same size, before the (possible) padding!
     assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
@@ -133,7 +133,7 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
 
 void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector<string> &imgFileNames, const Mat& firstImage,
 								    int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-                                    size_t nrPixels, const int diffW, const int diffH) {
+                                    size_t nrPixels, const int diffW, const int diffH, bool grayscale) {
     cout << "Executing with 2 streams" << endl;
     Mat curImg = firstImage.clone();
     int numberChannelsImage = curImg.channels();
@@ -181,7 +181,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
       if (i != 0) {
     imgFile = imgFileNames[i];
-    curImg = openCVHelpers::imreadFloat(imgFileNames[i]);
+    curImg = openCVHelpers::imreadFloat(imgFileNames[i],grayscale);
       }
 
       // check if we got the same size, before the (possible) padding!
@@ -198,7 +198,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
       if (isIPlusOneValid) {
     imgFile = imgFileNames[iPlusOne];
-    curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne]);
+    curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne],grayscale);
 
 
 
@@ -242,13 +242,13 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     cudaStreamDestroy(stream1);
   }
 
-  void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, int useNthPicture) {
+  void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, int useNthPicture, bool grayscale) {
     vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath, useNthPicture);
 
     size_t nrImgs = imgFileNames.size();
     string imgFile = imgFileNames[0];
 
-    Mat curImg = openCVHelpers::imreadFloat(imgFileNames[0]);
+    Mat curImg = openCVHelpers::imreadFloat(imgFileNames[0],grayscale);
     int w = curImg.cols;
     int h = curImg.rows;
     int nc = curImg.channels();
@@ -285,12 +285,12 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       useMultipleStreams = false;
       determineSharpnessFromAllImagesSingleStream(imgFileNames, curImg,
 						  paddingTop, paddingBottom, paddingLeft, paddingRight,
-                          nrPixels, diffW, diffH);
+                          nrPixels, diffW, diffH,grayscale);
     } else {
       useMultipleStreams = true;    
       determineSharpnessFromAllImagesMultipleStreams(imgFileNames, curImg,
 						     paddingTop, paddingBottom, paddingLeft, paddingRight,
-                             nrPixels, diffW, diffH);
+                             nrPixels, diffW, diffH,grayscale);
     }
   }
 

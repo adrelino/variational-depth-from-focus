@@ -39,7 +39,7 @@ namespace vdff {
     DataPreparatorTensor3f(const char *dir, float minVal, float maxVal);
     virtual ~DataPreparatorTensor3f();
 
-    cv::Mat determineSharpnessFromAllImages(int skipNthPicture=1); //returns the last image in the sequence for seeing the colorchannel
+    cv::Mat determineSharpnessFromAllImages(int skipNthPicture=1, bool grayscale=false); //returns the last image in the sequence for seeing the colorchannel
 
     void findMaxSharpnessValues();
 

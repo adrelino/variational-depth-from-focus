@@ -53,18 +53,18 @@ namespace vdff {
 
   void determineSharpnessFromAllImagesMultipleStreams(const std::vector<std::string> &imgFileNames, const cv::Mat& firstImage,
 						      int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-                              size_t nrPixels, const int diffW, const int diffH);
+                              size_t nrPixels, const int diffW, const int diffH, bool grayscale=false);
   
   void determineSharpnessFromAllImagesSingleStream(const std::vector<std::string> &imgFileNames, const cv::Mat& firstImage,
 						   int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-                           size_t nrPixels, const int diffW, const int diffH);
+                           size_t nrPixels, const int diffW, const int diffH, bool grayscale=false);
 
   public:
     DataPreparator(const char *dir, float minVal, float maxVal, MemoryLayout layout);
     virtual ~DataPreparator();
 
     void determineSharpnessFromAllImages(const cudaDeviceProp& deviceProperties, bool usePageLockedMemory,
-					 int skipNthPicture=1);
+                     int skipNthPicture=1, bool grayscale=false);
 
     // split this up in separate classes
     virtual cv::Mat findMaxSharpnessValues() = 0;

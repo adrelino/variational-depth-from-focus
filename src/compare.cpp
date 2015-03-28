@@ -26,13 +26,13 @@ int main(int argc, char **argv) {
         cv::Mat depthFromColor = cv::imread(im2,CV_LOAD_IMAGE_UNCHANGED);
 
         cout<<"im1: ";
-        openCVHelpers::imgInfo(depthFromGray);
+        openCVHelpers::imgInfo(depthFromGray,true);
         cout<<endl<<"im2: ";
-        openCVHelpers::imgInfo(depthFromColor);
+        openCVHelpers::imgInfo(depthFromColor,true);
 
         cv::Mat diff = abs(depthFromColor-depthFromGray);
         cout<<endl<<"diff: ";
-        openCVHelpers::imgInfo(diff);
+        openCVHelpers::imgInfo(diff,true);
 
         double min,max;
         cv::minMaxLoc(diff,&min,&max);

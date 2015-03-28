@@ -224,10 +224,7 @@ namespace vdff {
       cv::imshow(wTitle, mat);
     }
 
-    Mat showDepthImage(const string &wndTitle, const Mat& img, int posX, int posY, bool doResize) {
-      double min, max;
-      minMaxIdx(img, &min, &max);
-
+    Mat showDepthImage(const string &wndTitle, const Mat& img, int posX, int posY, double min, double max, bool doResize) {
       Mat depthMap;
       float scale = 255.0f / (max - min);
       img.convertTo(depthMap, CV_8UC1, scale, -min*scale);
@@ -235,12 +232,17 @@ namespace vdff {
       Mat heatMap;
       applyColorMap(depthMap, heatMap, cv::COLORMAP_JET);
 
-      if (doResize)
-	resize(heatMap, heatMap, Size(), 0.5, 0.5);
+      if (doResize) resize(heatMap, heatMap, Size(), 0.5, 0.5);
   
       showImage(wndTitle, heatMap, posX, posY);
 
       return heatMap;
+    }
+
+    cv::Mat showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool doResize){
+        double min, max;
+        minMaxIdx(img, &min, &max);
+        return showDepthImage(wndTitle,img,posX,posY,min,max,doResize);
     }
 
     void createOptimallyPaddedImageForDCT(const Mat& img, Mat& paddedImg, 
@@ -368,25 +370,27 @@ int convertToFloat(cv::Mat &image){
     return maxRange;
 }
 
-void imgInfo(cv::Mat image){
-    //double min,max;
-    //cv::minMaxIdx(image,&min,&max);
+void imgInfo(cv::Mat image,bool full){
     cout<<"\t type: "<<openCVHelpers::getImageType(image.type())<<"\t";
     cout<<"channels: "<<image.channels()<<"\t";
 //    cout<<"depth: "<<image.depth()<<endl;
 //    cout<<"elemSize: "<<image.elemSize()<<endl;
     cout<<"elemSize1: "<<image.elemSize1()<<" bytes \t";
     cout<<"maxRange: "<<MAX_RANGE(image)<<"\t";
-    //cout<<"min: "<<min<<" \t max: "<<max<<endl;
+    if(full){
+            double min,max;
+            cv::minMaxIdx(image,&min,&max);
+            cout<<"min: "<<min<<" \t max: "<<max<<"\t";
+    }
 //    cout<<"step: "<<image.step<<endl;
 //    cout<<"step1: "<<image.step1()<<endl;
 //    cout<<"total: "<<image.total()<<endl;
 }
 
-Mat imreadFloat(string filename){
+Mat imreadFloat(string filename,bool grayscale){
     int flags = CV_LOAD_IMAGE_UNCHANGED;
 //    if(openCVHelpers::color) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR;
-//    if(openCVHelpers::grayscale) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_GRAYSCALE;
+    if(grayscale) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_GRAYSCALE;
 
     cv::Mat original = imread(filename,flags);
     //cout<<endl;

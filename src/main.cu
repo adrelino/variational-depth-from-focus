@@ -79,6 +79,9 @@ bool parseCmdLine(Parameters &params, int argc, char **argv) {
   Utils::getParam("useNthPicture", params.useNthPicture, argc, argv);
   Utils::getParam("export", params.exportFilename, argc, argv);
 
+  Utils::getParam("grayscale", params.grayscale, argc, argv);
+
+
   return true;
 }
 
@@ -95,7 +98,7 @@ DataPreparatorTensor3f* approximateSharpnessAndCreateDepthEstimateTensor3f(const
 									   Utils::InfoImgSeq &info) {
   DataPreparatorTensor3f *dataLoader = new DataPreparatorTensor3f(params.folderPath.c_str(), params.minVal, params.maxVal);
 
-  Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages(params.useNthPicture);
+  Mat lastImgInSeq = dataLoader->determineSharpnessFromAllImages(params.useNthPicture, params.grayscale);
   int lastIndex=dataLoader->getInfoImgSeq().nrImgs - 1;
 
 
@@ -140,7 +143,7 @@ DataPreparator* approximateSharpnessAndCreateDepthEstimate(const Parameters &par
   cout << "Determine sharpness from images in " << params.folderPath << endl;
   t.tic();
   dataLoader->determineSharpnessFromAllImages(deviceProperties, params.usePageLockedMemory,
-					      params.useNthPicture);
+                          params.useNthPicture, params.grayscale);
   cudaDeviceSynchronize();
   cout << "time elapsed: " << t.tocInSeconds() << " s" << endl;
   
@@ -233,6 +236,12 @@ int main(int argc, char **argv) {
   cout << "\tlambda: " << params.lambda << endl;
   cout << endl;
 
+  cout<<"initial depth estimate: ";
+  openCVHelpers::imgInfo(mSmoothDepthEstimateScaled,true);
+  cout<<endl;
+  openCVHelpers::showDepthImage("initial depth estimate", mSmoothDepthEstimateScaled, 250 , 250,params.minVal,params.maxVal);
+  waitKey(2);
+
   methods->tic();
   LinearizedADMM admm(mSmoothDepthEstimateScaled.cols, mSmoothDepthEstimateScaled.rows,
 		      params.minVal, params.maxVal);
@@ -246,13 +255,19 @@ int main(int argc, char **argv) {
   cout << "======================================================================" <<endl;
   cout << "Total elapsed time: " << total->tocInSeconds() << " s" << endl;
 
-  Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 250 , 250);
+  cout<<"result depth map: ";
+  openCVHelpers::imgInfo(res,true);
+  Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 250 , 250,params.minVal,params.maxVal);
+  cout<<endl<<"result heat map: ";
+  openCVHelpers::imgInfo(resHeatMap,true);
+  cout<<endl;
   //require user input to exit
   waitKey(0);
 
   // if user specified an export file, we save the result
   if(!params.exportFilename.empty()) {
     openCVHelpers::exportImage(resHeatMap, params.exportFilename);
+    imwrite(params.exportFilename+".exr",res); //can store 32bit float as exr
   }
 
   if (dataLoaderTensor3f) {

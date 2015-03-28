@@ -87,14 +87,22 @@ namespace vdff {
     void imagesc(std::string title, cv::Mat mat, int x, int y);
     void createOptimallyPaddedImageForDCT(const cv::Mat& img, cv::Mat& paddedImg, 
 					  int &paddingX, int &paddingY);
-    cv::Mat showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool dResize=false);
+
+
+    //passing these params ensures that same color implies same depth in different images
+    //min = vdff::Parameters::minVal;
+    //max = vdff::Parameters::maxVal;
+    cv::Mat showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, double min, double max,bool dResize=false);
+
+    cv::Mat showDepthImage(const std::string &wndTitle, const cv::Mat& img, int posX, int posY, bool doResize=false);
+
     void exportImage(const cv::Mat &img, const std::string &fileName);
 
     int convertToFloat(cv::Mat &image);
 
-    void imgInfo(cv::Mat image);
+    void imgInfo(cv::Mat image, bool full=false);
     //reads 1 or 3 channel image (with 8 or 16 bit depth) and converts it to 1 or 3 channel float (with 32 bit depth) correctly scaled form 0.0 -> 1.0f
-    cv::Mat imreadFloat(std::string filename);
+    cv::Mat imreadFloat(std::string filename, bool grayscale=false);
 
     char waitKey2(int delay, bool hint=true);
 
