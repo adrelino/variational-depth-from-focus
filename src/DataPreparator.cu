@@ -108,7 +108,7 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
 
     if (i != 0) {
       imgFile = imgFileNames[i];
-      curImg = openCVHelpers::imreadFloat(imgFileNames[i]);
+      curImg = openCVHelpers::imreadFloat(imgFileNames[i], false);
     }
     // check if we got the same size, before the (possible) padding!
     assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
@@ -160,8 +160,6 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     cudaMalloc(&d_sharpnessCurImg0, sharpnessBytes); CUDA_CHECK;
     cudaMalloc(&d_sharpnessCurImg1, sharpnessBytes); CUDA_CHECK;
 
-    cout << "Creating cuda stream" << endl;
-
     cudaStream_t stream0;
     cudaStream_t stream1;
     cudaStreamCreate(&stream0); CUDA_CHECK;
@@ -180,8 +178,8 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       cout << "Determining sharpness from picture " << (i+1) << " from " << info.nrImgs;
 
       if (i != 0) {
-    imgFile = imgFileNames[i];
-    curImg = openCVHelpers::imreadFloat(imgFileNames[i]);
+	imgFile = imgFileNames[i];
+	curImg = openCVHelpers::imreadFloat(imgFileNames[i], false);
       }
 
       // check if we got the same size, before the (possible) padding!
@@ -198,9 +196,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
       if (isIPlusOneValid) {
     imgFile = imgFileNames[iPlusOne];
-    curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne]);
-
-
+    curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne], false);
 
     // check if we got the same size, before the (possible) padding!
     assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
@@ -454,6 +450,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 	  bytesToProcess = 0;
 	}
       }
+      cout << endl;
       assert(processedRows == info.h);
     }
 

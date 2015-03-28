@@ -35,24 +35,30 @@
 
 namespace vdff {
   namespace Utils {
-      // parameter processing
-      template<typename T> bool getParam(std::string param, T &var, int argc, char **argv)
+    // parameter processing
+    template<typename T> bool getParam(std::string param, T &var, int argc, char **argv, bool printParam=true)
       {
         const char *c_param = param.c_str();
         for(int i=argc-1; i>=1; i--)
-      {
-        if (argv[i][0]!='-') continue;
-        if (strcmp(argv[i]+1, c_param)==0)
-          {
-            if (!(i+1<argc)) continue;
-            std::stringstream ss;
-            ss << argv[i+1];
-            ss >> var;
-            std::cout<<"PARAM[SET]: "<<param<<" : "<<var<<std::endl;
-            return (bool)ss;
-          }
-      }
-        std::cout<<"PARAM[DEF]: "<<param<<" : "<<var<<std::endl;
+	  {
+	    if (argv[i][0]!='-') continue;
+	    if (strcmp(argv[i]+1, c_param)==0)
+	      {
+		if (!(i+1<argc)) continue;
+		std::stringstream ss;
+		ss << argv[i+1];
+		ss >> var;
+
+		if (printParam) {
+		  std::cout<<"PARAM[SET]: "<<param<<" : "<<var<<std::endl;
+		}
+	    
+		return (bool)ss;
+	      }
+	  }
+	if (printParam) {
+	  std::cout<<"PARAM[DEF]: "<<param<<" : "<<var<<std::endl;
+	}
         return false;
       }
 
@@ -94,7 +100,7 @@ namespace vdff {
 
     void imgInfo(cv::Mat image);
     //reads 1 or 3 channel image (with 8 or 16 bit depth) and converts it to 1 or 3 channel float (with 32 bit depth) correctly scaled form 0.0 -> 1.0f
-    cv::Mat imreadFloat(std::string filename);
+    cv::Mat imreadFloat(std::string filename, bool printDbgInformation=true);
 
     char waitKey2(int delay, bool hint=true);
 
