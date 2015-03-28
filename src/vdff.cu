@@ -52,32 +52,32 @@ bool checkPassedFolderPath(const string path) {
 
 // check command line for given parameters; returns false if something is not set correctly
 bool parseCmdLine(Parameters &params, int argc, char **argv) {
-  Utils::getParam("dir", params.folderPath, argc, argv);
+  Utils::getParam("dir", params.folderPath, argc, argv, false);
   if (!checkPassedFolderPath(params.folderPath)) {
     return false;
   }
 
-  Utils::getParam("useTensor3fClass", params.useTensor3fClass, argc, argv);
-  Utils::getParam("delay", params.delay, argc, argv);
+  Utils::getParam("useTensor3fClass", params.useTensor3fClass, argc, argv, false);
+  Utils::getParam("delay", params.delay, argc, argv, false);
 
-  Utils::getParam("smoothGPU", params.smoothGPU, argc, argv);
-  Utils::getParam("pageLocked", params.usePageLockedMemory, argc, argv);
+  Utils::getParam("smoothGPU", params.smoothGPU, argc, argv, false);
+  Utils::getParam("pageLocked", params.usePageLockedMemory, argc, argv, false);
 
-  Utils::getParam("minVal", params.minVal, argc, argv);
-  Utils::getParam("maxVal", params.maxVal, argc, argv);
-  Utils::getParam("denomRegu", params.denomRegu, argc, argv);
-  Utils::getParam("polyDegree", params.polynomialDegree, argc, argv);
+  Utils::getParam("minVal", params.minVal, argc, argv, false);
+  Utils::getParam("maxVal", params.maxVal, argc, argv, false);
+  Utils::getParam("denomRegu", params.denomRegu, argc, argv, false);
+  Utils::getParam("polyDegree", params.polynomialDegree, argc, argv, false);
 
   // if dataFidelity was set, make sure tau(dataDescentStep) stays up2date
-  Utils::getParam("dataFidelity", params.dataFidelityParam, argc, argv);
+  Utils::getParam("dataFidelity", params.dataFidelityParam, argc, argv, false);
   params.dataDescentStep = 8.0f / params.dataFidelityParam;
-  Utils::getParam("descentStep", params.dataDescentStep, argc, argv);
-  Utils::getParam("convIterations", params.convIterations, argc, argv);
-  Utils::getParam("iterations", params.nrIterations, argc, argv);
-  Utils::getParam("lambda", params.lambda, argc, argv); 
+  Utils::getParam("descentStep", params.dataDescentStep, argc, argv, false);
+  Utils::getParam("convIterations", params.convIterations, argc, argv, false);
+  Utils::getParam("iterations", params.nrIterations, argc, argv, false);
+  Utils::getParam("lambda", params.lambda, argc, argv, false); 
 
-  Utils::getParam("useNthPicture", params.useNthPicture, argc, argv);
-  Utils::getParam("export", params.exportFilename, argc, argv);
+  Utils::getParam("useNthPicture", params.useNthPicture, argc, argv, false);
+  Utils::getParam("export", params.exportFilename, argc, argv, false);
 
   return true;
 }
