@@ -98,8 +98,16 @@ click on this message and specify the path to
 ```
 your/path/to/opencv/build
 ```
-Everything should now work smoothly and then you can open the generated "Variational_depth_from_focus.sln" in Visual Studio, which can be found in the build folder. In Visual Studio, exclude "ALL_BUILD" and "ZERO_CHECK" from the project,
-right-click "vdff" and select "Set as Startup Project".
+Everything should now work smoothly and then you can open the generated "variational_depth_from_focus.sln" in Visual Studio, which can be found in the build folder. In Visual Studio, unload all projects except "vdff" (by right-clicking them and
+choosing "Unload Project"). Right-click "vdff" and select "Set as Startup Project".
+
+Next, we have to define the"NOMINMAX" preprocessor directive. Right-click again "vdff" and click "Properties".
+Select on the left "Configuration Properties" → "C/C++" → "Preprocessor". On the right, click into "Preprocessor Definitions"
+and insert 
+```
+;NOMINMAX
+```
+Click OK. Then select "BUILD" → "Build solution".
 
 The project should now compile successful. If the compiler complains that it can not find "dirent.h", you have to download the windows implementation of the header file from here  
 http://www.softagalleria.net/dirent.php  
