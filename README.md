@@ -136,19 +136,23 @@ All pictures of your sequence have to reside in the specified folder; pictures l
 ignored. Currently supported file formats are JPEG, TIFF and PNG.
 Additional parameters can be used, which are explained in more detail below.
 ##### Parameters
+The following parameters have to be preceded by a single dash and their arguments are given after a separating space.
+For the boolean parameters we use 0 as false and 1 as true.
+
 Parameter | Expected Type | Default Value |Explanation
 ----------|---------------|---------------|-----------
 dir | string | ../samples/sim | specifies the location of your image sequence. All pictures have to be in the folder; no sub-folders are supported.
-smoothGPU | bool | 1 | uses the GPU to smooth the initial obtained MLAP estimates
-pageLocked | bool | 0 | uses pageLocked-memory and cuda streams to speed up the creation of sharpness images
+smoothGPU | bool | 1 | if enabled, the GPU is used to smooth the initial obtained MLAP estimates. (increases speed)
+pageLocked | bool | 0 | if enabled, pageLocked-memory and cuda streams are used to speed up the creation of sharpness images
 minVal | int | -10 | minimum value of the range for which the polynomial approximations are calculated
 maxVal | int | 10 | maximum value of the range for which the polynomial approximations are calculated
-polynomialDegree | int | 6 | specifies the degree of the polynomials we later fit to the sharpness values
+polynomialDegree | int | 6 | specifies the degree of the polynomials we fit to the sharpness values
 denomRegu | float | 0.3 | regularizer used to decrease importance of sharp edges
 nrIterations | int | 400 | nr. of iterations of the ADMM algorithm
-convIterations | int | 0 | *TODO*
-lambda | float | 1.0 | parameter used in ADMM algorithm *TODO*
+convIterations | int | 0 | specifies at which number of iterations the proposed convergence scheme is used (see section 4 in the above paper). The default is to use it from the beginning.
+lambda | float | 1.0 | corresponds to the λ used in the ADMM algorithm
 grayscale | bool | 0 | convert image to grayscale before further processing
+export | string | "" | if a string is supplied, the created depth map is exported to the desired absolute or relative file-path after closing of the application. Exporting is currently only possible to .png or .jpg; if no suffix is supplied, the png format is assumed.
 
 ### Datasets
 #### ARRI&reg; - Dataset
