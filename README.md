@@ -146,7 +146,7 @@ smoothGPU | bool | 1 | if enabled, the GPU is used to smooth the initial obtaine
 pageLocked | bool | 0 | if enabled, pageLocked-memory and cuda streams are used to speed up the creation of sharpness images
 minVal | int | -10 | minimum value of the range for which the polynomial approximations are calculated
 maxVal | int | 10 | maximum value of the range for which the polynomial approximations are calculated
-polynomialDegree | int | 6 | specifies the degree of the polynomials we fit to the sharpness values
+polyDegree | int | 6 | specifies the degree of the polynomials we fit to the sharpness values
 denomRegu | float | 0.3 | regularizer used to decrease importance of sharp edges
 nrIterations | int | 400 | nr. of iterations of the ADMM algorithm
 convIterations | int | 0 | specifies at which number of iterations the proposed convergence scheme is used (see section 4 in the above paper). The default is to use it from the beginning.
@@ -161,7 +161,7 @@ http://in.tum.de/~haarbach/fokusfahrt_png_compr9.zip
   
 It consists of 374 16-bit png files which have a total size of 3.86 GB.  
 
-Since this quite large, we also offer a smaller set, which uses 8-bit jpg files with a compression setting of
+Since this is quite large, we also offer a smaller set, which uses 8-bit jpg files with a compression setting of
 95. With a total size of 198 MB it is considerably smaller and offers nearly the same results as the original dataset.
 Due to the compression and loss of precision, you have to adjust the setting of the denomRegu parameter a little; e.g. a setting of 1.0 is nearly identical to the results of the original dataset.  
   
