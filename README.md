@@ -152,12 +152,21 @@ nrIterations | int | 400 | nr. of iterations of the ADMM algorithm
 convIterations | int | 0 | specifies at which number of iterations the proposed convergence scheme is used (see section 4 in the above paper). The default is to use it from the beginning.
 lambda | float | 1.0 | corresponds to the λ used in the ADMM algorithm
 grayscale | bool | 0 | convert image to grayscale before further processing
-export | string | "" | if a string is supplied, the created depth map is exported to the desired absolute or relative file-path after closing of the application. Exporting is currently only possible to .png or .jpg; if no suffix is supplied, the png format is assumed.
+export | string | "" | if a string is supplied, the created depth map is exported to the desired absolute or relative file-path after the closing of the application. Exporting is currently only possible to .png or .jpg; if no suffix is supplied, the png format is assumed.
 
 ### Datasets
 #### ARRI&reg; - Dataset
 The dataset of the paper is available under the following link:  
-*COMING SOON*
+http://in.tum.de/~haarbach/fokusfahrt_png_compr9.zip  
+  
+It consists of 374 16-bit png files which have a total size of 3.86 GB.  
+
+Since this quite large, we also offer a smaller set, which uses 8-bit jpg files with a compression setting of
+95. With a total size of 198 MB it is considerably smaller and offers nearly the same results as the original dataset.
+Due to the compression and loss of precision, you have to adjust the setting of the denomRegu parameter a little; e.g. a setting of 1.0 is nearly identical to the results of the original dataset.  
+  
+The small dataset can be found under:  
+http://in.tum.de/~haarbach/fokusfahrt_jpg_compr95.zip
 
 #### Booksequence
 * http://www.sayonics.com/sources/books_00.zip
