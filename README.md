@@ -6,7 +6,7 @@ Moeller, Michael, et al. [Variational Depth from Focus Reconstruction](http://ar
 
 >This paper deals with the problem of reconstructing a depth map from a sequence of differently focused images, also known as depth from focus or shape from focus. We propose to state the depth from focus problem as a variational problem including a smooth but nonconvex data fidelity term, and a convex nonsmooth regularization, which makes the method robust to noise and leads to more realistic depth maps. Additionally, we propose to solve the nonconvex minimization problem with a linearized alternating directions method of multipliers (ADMM), allowing to minimize the energy very efficiently. A numerical comparison to classical methods on simulated as well as on real data is presented.
 
-### Dependencies 
+## Dependencies 
 CMake, CUDA, OpenCV
 
 #### MacOSX (10.9, 10.10)
@@ -64,7 +64,7 @@ If necessary, replace x64 with x86 for a 32-bit system and vc12 with vc11 for Vi
 Lastly, we need to install CMake, which can be obtained under:
 http://www.cmake.org/download/
 
-### Installation
+## Installation
 Now we are ready to build our code
 
 #### Mac OSX and Linux
@@ -117,15 +117,22 @@ For Visual Studio 2013 the path would be
 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
 ```
 
-### Execution
+## Execution
 #### Quickstart
 If you just run
 ```sh
 ./vdff
 ```
 then our code uses the included focus sequence with appropriate default parameters.
-The focus sequence was generated using the Defocus simulation from
+
+The focus sequence was generated from a textured image using the Defocus simulation code from
 http://www.sayonics.com/downloads.html
+
+![sim-in](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/sim/im_10.png)
+
+The expected result looks as follows:
+
+![sim-out](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/sim.png)
 
 #### Advanced
 You can evaluate your own image sequence by specifying its locaton to the executable via the "-dir" switch, e.g.
@@ -155,25 +162,31 @@ grayscale | bool | 0 | convert image to grayscale before further processing
 export | string | "" | if a string is supplied, the created depth map is exported to the desired absolute or relative file-path after the closing of the application. Exporting is currently only possible to .png or .jpg; if no suffix is supplied, the png format is assumed.
 
 ### Datasets
+All the datasets are provided as zip files, unzip them and then run with the -dir option.
 #### ARRI&reg; - Dataset
-The dataset of the paper is available under the following link:  
-http://in.tum.de/~haarbach/fokusfahrt_png_compr9.zip  
-  
-It consists of 374 16-bit png files which have a total size of 3.86 GB.  
+![fokusfahrt_in](http://home.in.tum.de/~haarbach/fokus202.jpg)
 
-Since this is quite large, we also offer a smaller set, which uses 8-bit jpg files with a compression setting of
-95. With a total size of 198 MB it is considerably smaller and offers nearly the same results as the original dataset.
-Due to the compression and loss of precision, you have to adjust the setting of the denomRegu parameter a little; e.g. a setting of 1.0 is nearly identical to the results of the original dataset.  
-  
-The small dataset can be found under:  
-http://in.tum.de/~haarbach/fokusfahrt_jpg_compr95.zip
+The full dataset of the paper is available under the following link:  
+* http://in.tum.de/~haarbach/fokusfahrt_png_compr9.zip
+* 
+It consists of 374 16-bit png files which have a total size of 3.86 GB. The result obtained with default parameters should look like:
+![fokusfahrt_full](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/fokusfahrt_png_compr9.png)
+
+Since this is quite large, we also offer a smaller set, which uses 8-bit jpg files with a compression setting of 95. With a total size of 198 MB it is considerably smaller and offers nearly the same results as the original dataset.
+
+The small dataset can be found under:
+* http://in.tum.de/~haarbach/fokusfahrt_jpg_compr95.zip
+
+Due to the compression and loss of precision, you have to adjust the setting of the -denomRegu parameter a little; e.g. a setting of 1.0 is nearly identical to the results of the full dataset:
+![fokusfahrt_small](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/fokusfahrt_jpg_compr95_denomRegu1.png)
 
 #### Booksequence
-* http://www.sayonics.com/sources/books_00.zip
-* http://www.sayonics.com/sources/books_02.zip
-* http://www.sayonics.com/sources/books_05.zip
+![book_00](http://www.sayonics.com/demos/demo_images/books00_frame_33.jpg)
 
-unzip them and then run with the -dir option:
-```sh
-./vdff -dir <DIR>
-```
+The same author that provides the focus simulation code we used above also provides a real sequence with different noise levels on his website:
+* http://www.sayonics.com/sources/books_00.zip low noise
+* http://www.sayonics.com/sources/books_02.zip middle noise
+* http://www.sayonics.com/sources/books_05.zip high noise
+
+Our result for books_00 with -denomRegu 2
+![book](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/books_00_denomRegu2.png)
