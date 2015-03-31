@@ -168,7 +168,7 @@ All the datasets are provided as zip files, unzip them and then run with the -di
 
 The full dataset of the paper is available under the following link:  
 * http://in.tum.de/~haarbach/fokusfahrt_png_compr9.zip
-* 
+
 It consists of 374 16-bit png files which have a total size of 3.86 GB. The result obtained with default parameters should look like:
 ![fokusfahrt_full](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/fokusfahrt_png_compr9.png)
 
