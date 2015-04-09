@@ -181,12 +181,8 @@ Due to the compression and loss of precision, you have to adjust the setting of 
 ![fokusfahrt_small](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/fokusfahrt_jpg_compr95_denomRegu1.png)
 
 #### Booksequence
-![book_00](http://www.sayonics.com/demos/demo_images/books00_frame_33.jpg)
 
 The same author that provides the focus simulation code we used above also provides a real sequence with different noise levels on his website:
 * http://www.sayonics.com/sources/books_00.zip low noise
 * http://www.sayonics.com/sources/books_02.zip middle noise
 * http://www.sayonics.com/sources/books_05.zip high noise
-
-Our result for books_00 with -denomRegu 2
-![book](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/results/books_00_denomRegu2.png)
