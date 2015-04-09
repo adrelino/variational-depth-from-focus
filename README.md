@@ -187,18 +187,26 @@ The same author that provides the focus simulation code we used above also provi
 * http://www.sayonics.com/sources/books_02.zip middle noise
 * http://www.sayonics.com/sources/books_05.zip high noise
 
-#### Balcony sequence
-![balcony_in](http://home.in.tum.de/~haarbach/balcony_0002.jpg)
+#### devCam sequences
 
-We recently recorded a new sequence using a Nexus 5 device and the [devCam](https://users.soe.ucsc.edu/~rcsumner/devcam/) Android app, which allows to record a burst of images while varying the focal distance. 
-The dataset can be found under:
+We recently recorded a new sequences using a Nexus 5 device and the [devCam](https://users.soe.ucsc.edu/~rcsumner/devcam/) Android app, which allows to record a burst of images while varying the focal distance. 
+The datasets can be found under:
 * http://in.tum.de/~haarbach/balcony.zip (19 images, 8.7MB)
-
-The result with default parameters looks like:
-
+![balcony_in](http://home.in.tum.de/~haarbach/balcony_0002.jpg)
 ![balcony](https://raw.githubusercontent.com/adrelino/variational-depth-from-focus/master/samples/results/balcony.png)
 
-We plan to record further datasets in the future. If you are interesed to record your own sequences, try to follow our instructions here:
+* http://in.tum.de/~haarbach/shelf.zip (20 images, <9MB)
+![shelf_in](http://home.in.tum.de/~haarbach/shelf-0000.jpg)
+![shelf](https://raw.githubusercontent.com/adrelino/variational-depth-from-focus/master/samples/results/shelf.png)
+
+* http://in.tum.de/~haarbach/alley.zip (20 images, <9MB)
+![alley_in](http://home.in.tum.de/~haarbach/alley-0000.jpg)
+![alley](https://raw.githubusercontent.com/adrelino/variational-depth-from-focus/master/samples/results/alley.png)
+
+We plan to record further datasets in the future.
+
+## Record your own dataset
+If you own a Nexus 5 or 6 device you may record your own sequences. For this you may download our [fork of devCam](https://github.com/adrelino/devCam), open it in Android Studio and run it on your device using the debug bridge.
 
 The parameters of the image sequence to record, called a burst, are specified in a configuration file in json format. [This configuration file](https://github.com/adrelino/variational-depth-from-focus/blob/master/samples/sweep_focus_8-100cm.json) varies the focal distance from 8cm to 100cm in steps of 2cm and needs to be copied from the computer to the following folder on the SD card of the Android device:
 ```sh
@@ -208,13 +216,25 @@ After the capture, a burst of images is saved in the folder
 ```sh
 Pictures/devCam/Captured/<capture design id>
 ```
-For copying the json file to the device and copying the captured image folder back to the PC one can use the MTP based [Android File Transfer](https://www.android.com/filetransfer/) on MAC. Note that if the folders/files don't show up, just restart the phone and they will be added to the Media Service.
+For copying the json file to the device and copying the captured image folder back to the PC one can use the MTP based [Android File Transfer](https://www.android.com/filetransfer/) on MAC. Note that if new folders/files don't show up, just restart the Android File Transfer program and if that doesn't help, restart the phone.
 
 Since varying the focal distance also changes the field of view, corresponding pixels will no longer be aligned. This effect can be removed by aligning all the images and optimizing the field of view for all images using the [align image stack](http://hugin.sourceforge.net/docs/manual/Align_image_stack.html) of [hugin](http://hugin.sourceforge.net/). This outputs tiff images, to save space one can convert them back to jpg using the compress application provided in our repository.
 ```sh
-cd Captured/<capture design id>
-mkdir aligned
-/Applications/hugin/HuginTools/align_image_stack -m -a aligned/balcony_ `ls *.jpg | sort -n -t - -k 2`
-<build path>/compress -compr 95 -indir aligned -outdir balcony -type jpg -color 1 -anydepth 1 -debug 0
+cd <vddf repo root>/Captured
+mkdir ../aligned
+mkdir ../aligned/<capture design id>
+cd <capture design id>
+/Applications/hugin/HuginTools/align_image_stack -m -a ../../aligned/<capture design id>/<capture design id>- `ls *.jpg | sort -n -t - -k 2 -v`
+cd ..
+../build/compress -compr 95 -indir ../aligned/<capture design id> -outdir ../samples/<capture design id> -type jpg -color 1 -anydepth 1 -debug 0
 ```
 note that when using the sweep_focus.json file which ships with the app instead of the one we provide above, the order of focal distances is reversed, meaning that the first captured image has the largest focal distance. In this case, just pass -r to sort so that the images will be cropped correctly and the resulting depth colormap is in the same order as in the other sequences.
+
+For convenience, we provide the bash script [align.sh](https://github.com/adrelino/variational-depth-from-focus/blob/master/align.sh) which bundles all of the above tasks, and additionally calls the main vdff programm together with the export option to quickly check if a recorded burst gives a satisfying depth map.
+
+considered you copied the Captured folder to the root of this github repository, then you simply need to run
+```sh
+cd <vddf repo root>/Captured
+../align.sh <capture design id> <reverse>?
+```
+which aligns the images, optionally reversing them if a second argument is supplied, crops them, compresses them and stores them in the /samples/<capture design id> folder and then runs the main vdff programm with this sequence, exporting the resulting depth map to /samples/results/<capture design id>.png.
