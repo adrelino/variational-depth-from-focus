@@ -73,7 +73,7 @@ bool parseCmdLine(Parameters &params, int argc, char **argv) {
   params.dataDescentStep = 8.0f / params.dataFidelityParam;
   Utils::getParam("descentStep", params.dataDescentStep, argc, argv, false);
   Utils::getParam("convIterations", params.convIterations, argc, argv, false);
-  Utils::getParam("iterations", params.nrIterations, argc, argv, false);
+  Utils::getParam("nrIterations", params.nrIterations, argc, argv, false);
   Utils::getParam("lambda", params.lambda, argc, argv, false); 
 
   Utils::getParam("useNthPicture", params.useNthPicture, argc, argv, false);
