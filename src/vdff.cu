@@ -194,6 +194,8 @@ int main(int argc, char **argv) {
   printGeneralParameters(params);
 
   cout << "\n================================== Executing =======================================" << endl;
+  Utils::memprint();
+  cout<<"calling cudaDeviceReset to try to free GPU memory"<<endl;
   cudaDeviceReset(); CUDA_CHECK;
   // initialize CUDA context
   cudaDeviceSynchronize(); CUDA_CHECK;
@@ -202,7 +204,7 @@ int main(int argc, char **argv) {
   cudaDeviceProp deviceProperties = Utils::queryDeviceProperties();
 
   size_t freeStartup, totalStartup;
-  Utils::getAvailableGlobalMemory(&freeStartup, &totalStartup);
+  Utils::getAvailableGlobalMemory(&freeStartup, &totalStartup,true);
 
   Mat mSmoothDepthEstimateScaled; //interface to pass to ADMM after our 2 different loading classes
   float *d_coefDerivative = NULL; // will contain the coefficients of the polynomial for each pixel
@@ -226,6 +228,9 @@ int main(int argc, char **argv) {
     dataLoader = approximateSharpnessAndCreateDepthEstimate(params, deviceProperties,
 							    &d_coefDerivative, mSmoothDepthEstimateScaled, info);
   }
+
+
+  Utils::memprint();
 
   cout << endl << "Running ADMM" << endl;
   cout << "Parameters:" << endl;
@@ -251,6 +256,7 @@ int main(int argc, char **argv) {
 		     params.convIterations, params.nrIterations, params.lambda);
 
   cudaDeviceSynchronize(); CUDA_CHECK;
+
   cout << "time elapsed: " << methods->tocInSeconds() << " s" << endl; 
   cout << "======================================================================" <<endl;
   cout << "Total elapsed time: " << total->tocInSeconds() << " s" << endl;
@@ -261,6 +267,9 @@ int main(int argc, char **argv) {
   cout<<endl<<"result heat map: ";
   openCVHelpers::imgInfo(resHeatMap,true);
   cout<<endl;
+
+  Utils::memprint();
+  cout<<"press any key while the image window is active to exit"<<endl;
   //require user input to exit
   waitKey(0);
 
