@@ -193,6 +193,14 @@ int main(int argc, char **argv) {
   }
   printGeneralParameters(params);
 
+  bool areImagesOK = Utils::areImagesEquallySized(Utils::getAllImagesFromFolder(params.folderPath.c_str(),
+										params.useNthPicture),
+						  params.grayscale);
+  if (!areImagesOK) {
+    cerr << "\nThe provided images do not have equal size, but we require that - aborting..." << endl;
+    exit(1);
+  }
+
   cout << "\n================================== Executing =======================================" << endl;
   Utils::memprint();
   cout<<"calling cudaDeviceReset to try to free GPU memory"<<endl;

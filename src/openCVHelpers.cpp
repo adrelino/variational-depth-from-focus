@@ -54,6 +54,22 @@ namespace vdff {
 #endif
     }
 
+    bool areImagesEquallySized(const vector<string>& imgFileNames, bool inGrayScale) {
+      Mat firstImg = openCVHelpers::imreadFloat(imgFileNames[0], inGrayScale);
+      size_t rows = firstImg.rows;
+      size_t cols = firstImg.cols;
+      size_t nrChannels = firstImg.channels();
+      
+      for (size_t i = 1; i < imgFileNames.size(); ++i) {
+	Mat tmp = openCVHelpers::imreadFloat(imgFileNames[i], inGrayScale);
+	if (tmp.rows != rows ||
+	    tmp.cols != cols ||
+	    tmp.channels() != nrChannels) {
+	  return false;
+	}
+      }
+      return true;
+    }
     vector<string> getAllImagesFromFolder(const char *dirname, int useNthPicture) {
       DIR *dir = NULL;
       struct dirent *entry;
@@ -392,7 +408,6 @@ Mat imreadFloat(string filename,bool grayscale){
 
     cv::Mat original = imread(filename,flags);
     //cout<<endl;
-    imgInfo(original);
     convertToFloat(original);
     //imgInfo(original);
     return original;

@@ -63,6 +63,7 @@ namespace vdff {
       }
 
     std::string getOSSeparator();
+    bool areImagesEquallySized(const std::vector<std::string>& imgFileNames, bool inGrayScale);
     std::vector<std::string> getAllImagesFromFolder(const char *dirname, int skipNthPicture=1);
   }
 

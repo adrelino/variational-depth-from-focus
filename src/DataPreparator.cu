@@ -18,6 +18,7 @@
 #include <DataPreparator.cuh>
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <openCVHelpers.h>
 
 #include <cuda.h>
@@ -64,16 +65,20 @@ namespace vdff {
     }
   }
 
-void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<string> &imgFileNames, const Mat& firstImage,
-								 int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-                                 size_t nrPixels, const int diffW, const int diffH,bool grayscale) {
-  cout << "Executing with a single stream" << endl;
-  Mat curImg = firstImage.clone();
-  int numberChannelsImage = curImg.channels();
+  void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<string> &imgFileNames, const Mat& firstImage,
+								   int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
+								   size_t nrPixels, const int diffW, const int diffH,bool grayscale) {
+    cout << "Executing with a single stream" << endl;
+    Mat curImg = firstImage.clone();
+    int numberChannelsImage = curImg.channels();
 
     size_t nrBytes = nrPixels * sizeof(float);
-  
+    
     float *l_img = new float[nrPixels];
+    if (l_img == NULL) {
+      throw std::runtime_error("could not allocate memory for l_img");
+    }
+    
     float *d_img;
     cudaMalloc(&d_img, nrBytes); CUDA_CHECK;
   
@@ -106,17 +111,15 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
       cout << "\r" << flush;
       cout << "Determining sharpness from picture " << (i+1) << " from " << info.nrImgs;
 
-    if (i != 0) {
-      imgFile = imgFileNames[i];
-      curImg = openCVHelpers::imreadFloat(imgFileNames[i],grayscale);
-    }
-    // check if we got the same size, before the (possible) padding!
-    assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
-
-      // pad the image if we need to, to guarantee that DCT is possible
-      if (diffW != 0 || diffH != 0)
-	copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
-
+      if (i != 0) {
+	imgFile = imgFileNames[i];
+	curImg = openCVHelpers::imreadFloat(imgFileNames[i],grayscale);
+      
+	// pad the image if we need to, to guarantee that DCT is possible
+	if (diffW != 0 || diffH != 0) {
+	  copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+	}
+      }
       openCVHelpers::convert_mat_to_layered(l_img, curImg);
 
       cudaMemcpy(d_img, l_img, nrBytes, cudaMemcpyHostToDevice); CUDA_CHECK;
@@ -129,11 +132,11 @@ void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<st
     cudaFree(d_sharpnessCurImg);
   
     delete[] l_img;
-}
+  }
 
-void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector<string> &imgFileNames, const Mat& firstImage,
-								    int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
-                                    size_t nrPixels, const int diffW, const int diffH, bool grayscale) {
+  void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector<string> &imgFileNames, const Mat& firstImage,
+								      int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
+								      size_t nrPixels, const int diffW, const int diffH, bool grayscale) {
     cout << "Executing with 2 streams" << endl;
     Mat curImg = firstImage.clone();
     int numberChannelsImage = curImg.channels();
@@ -178,8 +181,8 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       cout << "Determining sharpness from picture " << (i+1) << " from " << info.nrImgs;
 
       if (i != 0) {
-    imgFile = imgFileNames[i];
-    curImg = openCVHelpers::imreadFloat(imgFileNames[i],grayscale);
+	imgFile = imgFileNames[i];
+	curImg = openCVHelpers::imreadFloat(imgFileNames[i],grayscale);
       }
 
       // check if we got the same size, before the (possible) padding!
@@ -187,7 +190,7 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
 
       // pad the image if we need to, to guarantee that DCT is possible
       if (diffW != 0 || diffH != 0)
-    copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+	copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
 
       openCVHelpers::convert_mat_to_layered(l_img0, curImg);
 
@@ -195,31 +198,31 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
       bool isIPlusOneValid = iPlusOne < info.nrImgs;
 
       if (isIPlusOneValid) {
-    imgFile = imgFileNames[iPlusOne];
-    curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne],grayscale);
+	imgFile = imgFileNames[iPlusOne];
+	curImg = openCVHelpers::imreadFloat(imgFileNames[iPlusOne],grayscale);
 
-    // check if we got the same size, before the (possible) padding!
-    assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
+	// check if we got the same size, before the (possible) padding!
+	assert(firstImage.cols == curImg.cols && firstImage.rows == curImg.rows && firstImage.channels() == curImg.channels());
 
-    // pad the image if we need to, to guarantee that DCT is possible
-    if (diffW != 0 || diffH != 0)
-      copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+	// pad the image if we need to, to guarantee that DCT is possible
+	if (diffW != 0 || diffH != 0)
+	  copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
 
-    openCVHelpers::convert_mat_to_layered(l_img1, curImg);
+	openCVHelpers::convert_mat_to_layered(l_img1, curImg);
       }
 
       cudaMemcpyAsync(d_img0, l_img0, nrBytes, cudaMemcpyHostToDevice, stream0); CUDA_CHECK;
       if (isIPlusOneValid)
-    cudaMemcpyAsync(d_img1, l_img1, nrBytes, cudaMemcpyHostToDevice, stream1); CUDA_CHECK;
+	cudaMemcpyAsync(d_img1, l_img1, nrBytes, cudaMemcpyHostToDevice, stream1); CUDA_CHECK;
 
       cudaComputeMLAP(gridSize, blockSize, d_img0, d_sharpnessCurImg0, info.w, info.h, numberChannelsImage, 1, stream0); CUDA_CHECK;
       if (isIPlusOneValid)
-    cudaComputeMLAP(gridSize, blockSize, d_img1, d_sharpnessCurImg1, info.w, info.h, numberChannelsImage, 1, stream1); CUDA_CHECK;
+	cudaComputeMLAP(gridSize, blockSize, d_img1, d_sharpnessCurImg1, info.w, info.h, numberChannelsImage, 1, stream1); CUDA_CHECK;
 
       copyMLAPIntoPageLockedMemory(d_sharpnessCurImg0, i, stream0);
 
       if (isIPlusOneValid)
-    copyMLAPIntoPageLockedMemory(d_sharpnessCurImg1, iPlusOne, stream1);
+	copyMLAPIntoPageLockedMemory(d_sharpnessCurImg1, iPlusOne, stream1);
     }
     cudaStreamSynchronize(stream0); CUDA_CHECK;
     cudaStreamSynchronize(stream1); CUDA_CHECK;
@@ -244,7 +247,10 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     size_t nrImgs = imgFileNames.size();
     string imgFile = imgFileNames[0];
 
+    cout << "loading img: " << imgFileNames[0] << endl;
     Mat curImg = openCVHelpers::imreadFloat(imgFileNames[0],grayscale);
+    cout << "\tdone" << endl;
+    
     int w = curImg.cols;
     int h = curImg.rows;
     int nc = curImg.channels();
@@ -263,8 +269,9 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     paddingBottom += diffH % 2 == 1;
     paddingRight += diffW % 2 == 1;
 
-    if (diffW != 0 || diffH != 0)
+    if (diffW != 0 || diffH != 0) {
       copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+    }
   
     // fill info struct
     info.w = curImg.cols;
@@ -273,20 +280,22 @@ void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector
     // ATTENTION: we have only one channel in the sharpness image!
     info.nc = 1;
 
-    size_t nrPixels = static_cast<size_t>(w*h*nc);
+    size_t nrPixels = static_cast<size_t>(curImg.cols*curImg.rows*curImg.channels());
 
     // check if the graphics device can handle overlaps --> no: only use one stream (default), else: do it with multiple streams
     // (at the moment 2)
     if (!deviceProperties.deviceOverlap || !usePageLockedMemory) {
+      cout << "determine sharpness - single stream" << endl;
       useMultipleStreams = false;
       determineSharpnessFromAllImagesSingleStream(imgFileNames, curImg,
 						  paddingTop, paddingBottom, paddingLeft, paddingRight,
-                          nrPixels, diffW, diffH,grayscale);
+						  nrPixels, diffW, diffH,grayscale);
     } else {
-      useMultipleStreams = true;    
+      useMultipleStreams = true;
+      cout << "determine sharpness - multi stream" << endl;
       determineSharpnessFromAllImagesMultipleStreams(imgFileNames, curImg,
 						     paddingTop, paddingBottom, paddingLeft, paddingRight,
-                             nrPixels, diffW, diffH,grayscale);
+						     nrPixels, diffW, diffH,grayscale);
     }
   }
 
