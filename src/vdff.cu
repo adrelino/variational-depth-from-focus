@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
   cout<<"initial depth estimate: ";
   openCVHelpers::imgInfo(mSmoothDepthEstimateScaled,true);
   cout<<endl;
-  openCVHelpers::showDepthImage("initial depth estimate", mSmoothDepthEstimateScaled, 250 , 250,params.minVal,params.maxVal);
+  openCVHelpers::showDepthImage("initial depth estimate", mSmoothDepthEstimateScaled, 100, 150);
   waitKey(2);
 
   methods->tic();
@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
 
   cout<<"result depth map: ";
   openCVHelpers::imgInfo(res,true);
-  Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 250 , 250,params.minVal,params.maxVal);
+  Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 550, 150);
   cout<<endl<<"result heat map: ";
   openCVHelpers::imgInfo(resHeatMap,true);
   cout<<endl;
