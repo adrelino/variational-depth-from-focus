@@ -52,18 +52,18 @@ namespace vdff {
     void copySharpnessChunk(float *d_sharpness, size_t yOffset, size_t rowsToCopy, size_t nrBytesToCopy);
 
   void determineSharpnessFromAllImagesMultipleStreams(const std::vector<std::string> &imgFileNames, const cv::Mat& firstImage,
-						      int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
+						      const Utils::Padding &padding,
                               size_t nrPixels, const int diffW, const int diffH, bool grayscale=false);
   
   void determineSharpnessFromAllImagesSingleStream(const std::vector<std::string> &imgFileNames, const cv::Mat& firstImage,
-						   int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
+						   const Utils::Padding &padding,
                            size_t nrPixels, const int diffW, const int diffH, bool grayscale=false);
 
   public:
     DataPreparator(const char *dir, float minVal, float maxVal, MemoryLayout layout);
     virtual ~DataPreparator();
 
-    void determineSharpnessFromAllImages(const cudaDeviceProp& deviceProperties, bool usePageLockedMemory,
+    void determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, Utils::Padding &padding,
                      int skipNthPicture=1, bool grayscale=false);
 
     // split this up in separate classes

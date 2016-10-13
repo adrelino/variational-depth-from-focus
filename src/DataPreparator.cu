@@ -66,7 +66,7 @@ namespace vdff {
   }
 
   void DataPreparator::determineSharpnessFromAllImagesSingleStream(const vector<string> &imgFileNames, const Mat& firstImage,
-								   int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
+								   const Utils::Padding &padding,
 								   size_t nrPixels, const int diffW, const int diffH,bool grayscale) {
     cout << "Executing with a single stream" << endl;
     Mat curImg = firstImage.clone();
@@ -117,7 +117,7 @@ namespace vdff {
       
 	// pad the image if we need to, to guarantee that DCT is possible
 	if (diffW != 0 || diffH != 0) {
-	  copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+	  copyMakeBorder(curImg, curImg, padding.top, padding.bottom, padding.left, padding.right, BORDER_REPLICATE);
 	}
       }
       openCVHelpers::convert_mat_to_layered(l_img, curImg);
@@ -135,7 +135,7 @@ namespace vdff {
   }
 
   void DataPreparator::determineSharpnessFromAllImagesMultipleStreams(const vector<string> &imgFileNames, const Mat& firstImage,
-								      int paddingTop, int paddingBottom, int paddingLeft, int paddingRight,
+								      const Utils::Padding& padding,
 								      size_t nrPixels, const int diffW, const int diffH, bool grayscale) {
     cout << "Executing with 2 streams" << endl;
     Mat curImg = firstImage.clone();
@@ -190,7 +190,7 @@ namespace vdff {
 
       // pad the image if we need to, to guarantee that DCT is possible
       if (diffW != 0 || diffH != 0)
-	copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+	copyMakeBorder(curImg, curImg, padding.top, padding.bottom, padding.left, padding.right, BORDER_REPLICATE);
 
       openCVHelpers::convert_mat_to_layered(l_img0, curImg);
 
@@ -206,7 +206,7 @@ namespace vdff {
 
 	// pad the image if we need to, to guarantee that DCT is possible
 	if (diffW != 0 || diffH != 0)
-	  copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+	  copyMakeBorder(curImg, curImg, padding.top, padding.bottom, padding.left, padding.right, BORDER_REPLICATE);
 
 	openCVHelpers::convert_mat_to_layered(l_img1, curImg);
       }
@@ -241,7 +241,7 @@ namespace vdff {
     cudaStreamDestroy(stream1);
   }
 
-  void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory, int useNthPicture, bool grayscale) {
+  void DataPreparator::determineSharpnessFromAllImages(const cudaDeviceProp &deviceProperties, bool usePageLockedMemory,  Utils::Padding &imgPadding, int useNthPicture, bool grayscale) {
     vector<string> imgFileNames = Utils::getAllImagesFromFolder(dirPath, useNthPicture);
 
     size_t nrImgs = imgFileNames.size();
@@ -263,14 +263,13 @@ namespace vdff {
     int diffW = optW - w;
     int diffH = optH - h;
 
-    int paddingTop, paddingBottom, paddingLeft, paddingRight;
-    paddingTop = paddingBottom = diffH / 2;
-    paddingLeft = paddingRight = diffW / 2;
-    paddingBottom += diffH % 2 == 1;
-    paddingRight += diffW % 2 == 1;
+    imgPadding.top = imgPadding.bottom = diffH / 2;
+    imgPadding.left = imgPadding.right = diffW / 2;
+    imgPadding.bottom += diffH % 2 == 1;
+    imgPadding.right += diffW % 2 == 1;
 
     if (diffW != 0 || diffH != 0) {
-      copyMakeBorder(curImg, curImg, paddingTop, paddingBottom, paddingLeft, paddingRight, BORDER_REPLICATE);
+      copyMakeBorder(curImg, curImg, imgPadding.top, imgPadding.bottom, imgPadding.left, imgPadding.right, BORDER_REPLICATE);
     }
   
     // fill info struct
@@ -288,13 +287,13 @@ namespace vdff {
       cout << "determine sharpness - single stream" << endl;
       useMultipleStreams = false;
       determineSharpnessFromAllImagesSingleStream(imgFileNames, curImg,
-						  paddingTop, paddingBottom, paddingLeft, paddingRight,
+						  imgPadding,
 						  nrPixels, diffW, diffH,grayscale);
     } else {
       useMultipleStreams = true;
       cout << "determine sharpness - multi stream" << endl;
       determineSharpnessFromAllImagesMultipleStreams(imgFileNames, curImg,
-						     paddingTop, paddingBottom, paddingLeft, paddingRight,
+						     imgPadding,
 						     nrPixels, diffW, diffH,grayscale);
     }
   }

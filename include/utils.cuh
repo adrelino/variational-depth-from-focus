@@ -53,6 +53,13 @@ namespace vdff {
       };
     } InfoImgSeq;
 
+    typedef struct {
+      size_t top;
+      size_t bottom;
+      size_t left;
+      size_t right;
+    } Padding;
+
     cudaDeviceProp queryDeviceProperties();
     void printTiming(CUDATimer &timer, const std::string& launchedKernel="");
 

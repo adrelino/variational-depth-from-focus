@@ -135,7 +135,8 @@ DataPreparator* approximateSharpnessAndCreateDepthEstimate(const Parameters &par
 							   const cudaDeviceProp &deviceProperties,
 							   float **d_coefDerivative,
 							   Mat &mSmoothDepthEstimateScaled,
-							   Utils::InfoImgSeq &info) {
+							   Utils::InfoImgSeq &info,
+							   Utils::Padding &padding) {
   CPUTimer t;
   
   DataPreparator *dataLoader = new LayeredMemory(params.folderPath.c_str(), params.minVal, params.maxVal);
@@ -143,7 +144,7 @@ DataPreparator* approximateSharpnessAndCreateDepthEstimate(const Parameters &par
   cout << "Determine sharpness from images in " << params.folderPath << endl;
   t.tic();
   dataLoader->determineSharpnessFromAllImages(deviceProperties, params.usePageLockedMemory,
-                          params.useNthPicture, params.grayscale);
+					      padding, params.useNthPicture, params.grayscale);
   cudaDeviceSynchronize();
   cout << "time elapsed: " << t.tocInSeconds() << " s" << endl;
   
@@ -217,7 +218,8 @@ int main(int argc, char **argv) {
   Mat mSmoothDepthEstimateScaled; //interface to pass to ADMM after our 2 different loading classes
   float *d_coefDerivative = NULL; // will contain the coefficients of the polynomial for each pixel
   Utils::InfoImgSeq info;
-
+  Utils::Padding imgPadding; // images gets (maybe) padded, since DCT transform needs even image dimensions
+  
   DataPreparator *dataLoader = NULL;
   DataPreparatorTensor3f *dataLoaderTensor3f = NULL;
   
@@ -234,7 +236,7 @@ int main(int argc, char **argv) {
   }
   else {
     dataLoader = approximateSharpnessAndCreateDepthEstimate(params, deviceProperties,
-							    &d_coefDerivative, mSmoothDepthEstimateScaled, info);
+							    &d_coefDerivative, mSmoothDepthEstimateScaled, info, imgPadding);
   }
 
 
@@ -249,10 +251,22 @@ int main(int argc, char **argv) {
   cout << "\tlambda: " << params.lambda << endl;
   cout << endl;
 
+  //crop result, if padding was used
+  Mat croppedSmoothDepthEstimateScaled;
+  if (imgPadding.left != 0 ||
+      imgPadding.right != 0 ||
+      imgPadding.top != 0 ||
+      imgPadding.bottom != 0) {
+    croppedSmoothDepthEstimateScaled = mSmoothDepthEstimateScaled(cv::Rect(imgPadding.left, imgPadding.top, mSmoothDepthEstimateScaled.cols - (imgPadding.left + imgPadding.right),
+  								     mSmoothDepthEstimateScaled.rows - (imgPadding.top + imgPadding.bottom))).clone();
+  } else {
+    croppedSmoothDepthEstimateScaled = mSmoothDepthEstimateScaled;
+  }
+  
   cout<<"initial depth estimate: ";
-  openCVHelpers::imgInfo(mSmoothDepthEstimateScaled,true);
+  openCVHelpers::imgInfo(croppedSmoothDepthEstimateScaled,true);
   cout<<endl;
-  openCVHelpers::showDepthImage("initial depth estimate", mSmoothDepthEstimateScaled, 100, 150);
+  openCVHelpers::showDepthImage("initial depth estimate", croppedSmoothDepthEstimateScaled, 100, 150);
   waitKey(2);
 
   methods->tic();
@@ -269,9 +283,21 @@ int main(int argc, char **argv) {
   cout << "======================================================================" <<endl;
   cout << "Total elapsed time: " << total->tocInSeconds() << " s" << endl;
 
+  // crop result, if padding was used
+  Mat croppedRes;
+  if (imgPadding.left != 0 ||
+      imgPadding.right != 0 ||
+      imgPadding.top != 0 ||
+      imgPadding.bottom != 0) {
+    croppedRes = res(cv::Rect(imgPadding.left, imgPadding.top, res.cols - (imgPadding.left + imgPadding.right), res.rows - (imgPadding.top + imgPadding.bottom))).clone();
+  }
+  else {
+    croppedRes = res;
+  }
+  
   cout<<"result depth map: ";
-  openCVHelpers::imgInfo(res,true);
-  Mat resHeatMap = openCVHelpers::showDepthImage("Result", res, 550, 150);
+  openCVHelpers::imgInfo(croppedRes,true);
+  Mat resHeatMap = openCVHelpers::showDepthImage("Result", croppedRes, 550, 150);
   cout<<endl<<"result heat map: ";
   openCVHelpers::imgInfo(resHeatMap,true);
   cout<<endl;
@@ -284,7 +310,7 @@ int main(int argc, char **argv) {
   // if user specified an export file, we save the result
   if(!params.exportFilename.empty()) {
     openCVHelpers::exportImage(resHeatMap, params.exportFilename);
-    imwrite(params.exportFilename+".exr",res); //can store 32bit float as exr
+    imwrite(params.exportFilename+".exr", croppedRes); //can store 32bit float as exr
   }
 
   if (dataLoaderTensor3f) {
