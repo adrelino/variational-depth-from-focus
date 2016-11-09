@@ -320,5 +320,11 @@ int main(int argc, char **argv) {
   if (dataLoader) {
     delete dataLoader;
   }
+
+  cudaFree(d_coefDerivative);
+
+  delete total;
+  delete methods;
+
   return 0;
 }
