@@ -14,14 +14,13 @@
 // ### Dennis Mack, dennis.mack@tum.de, p060
 // ### Adrian Haarbach, haarbach@in.tum.de, p077
 // ### Markus Schlaffer, markus.schlaffer@in.tum.de, p070
+#include <iostream>
+using namespace std;
 
 #include <openCVHelpers.h>
-#include <opencv2/contrib/contrib.hpp>
-
-#include <iostream>
+//#include <opencv2/contrib/contrib.hpp>
 
 using namespace cv;
-using namespace std;
 
 namespace vdff {
 
