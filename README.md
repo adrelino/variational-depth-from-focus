@@ -190,19 +190,20 @@ The same author that provides the focus simulation code we used above also provi
 * http://www.sayonics.com/sources/books_02.zip middle noise
 * http://www.sayonics.com/sources/books_05.zip high noise
 
-#### devCam sequences
+#### devCam sequences [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.438196.svg)](https://doi.org/10.5281/zenodo.438196)
+
 
 We recently recorded a new sequences using a Nexus 5 device and the [devCam](https://users.soe.ucsc.edu/~rcsumner/devcam/) Android app, which allows to record a burst of images while varying the focal distance. 
 The datasets can be found under:
-* http://in.tum.de/~haarbach/balcony.zip (19 images, 8.7MB)
+* https://zenodo.org/record/438196/files/balcony.zip (19 images, 8.7MB)
 ![balcony_in](http://home.in.tum.de/~haarbach/balcony_0002.jpg)
 ![balcony](https://raw.githubusercontent.com/adrelino/variational-depth-from-focus/master/samples/results/balcony.png)
 
-* http://in.tum.de/~haarbach/shelf.zip (20 images, <9MB)
+* https://zenodo.org/record/438196/files/shelf.zip (20 images, <9MB)
 ![shelf_in](http://home.in.tum.de/~haarbach/shelf-0000.jpg)
 ![shelf](https://raw.githubusercontent.com/adrelino/variational-depth-from-focus/master/samples/results/shelf.png)
 
-* http://in.tum.de/~haarbach/alley.zip (20 images, <9MB)
+* https://zenodo.org/record/438196/files/alley.zip (20 images, <9MB)
 ![alley_in](http://home.in.tum.de/~haarbach/alley-0000.jpg)
 ![alley](https://raw.githubusercontent.com/adrelino/variational-depth-from-focus/master/samples/results/alley.png)
 
