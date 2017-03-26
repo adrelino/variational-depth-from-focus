@@ -1,4 +1,4 @@
-variational-depth-from-focus
+variational-depth-from-focus &middot; [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.438189.svg)]( http://doi.org/10.5281/zenodo.438189)
 ============================
 
 CUDA implementation of: 
