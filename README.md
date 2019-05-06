@@ -13,6 +13,8 @@ Möller, Michael et al. ["Variational Depth From Focus Reconstruction.”](http:
 CMake, CUDA, OpenCV
 
 #### MacOSX (10.9, 10.10)
+See commit 17226b9648f11d41b915cd060f9af636d4e106de for OpenCV 2.4 support.
+
 We installed OpenCV 2.4.10 and CMake 3 using brew
 
 make sure brew is installed correctly
@@ -34,7 +36,7 @@ http://developer.download.nvidia.com/compute/cuda/7_0/Prod/local_installers/cuda
 
 
 #### Linux
-Our code was tested under Arch Linux with OpenCV 2.4.10, CMake 3.2.1 and CUDA 7.0.
+Our code was tested under Arch Linux with OpenCV 4.1.0, CMake 3.14.3 and CUDA 10.1.105.
 It should compile and run successfully under your favorite linux distribution if it provides the above mentioned dependencies.
 
 Please use the appropriate package manager of your distribution to install these packages; below is an example
@@ -46,8 +48,12 @@ pacman -S cmake
 pacman -S cuda
 ```
 
+Additionally, a [PKGBUILD](https://raw.githubusercontent.com/Crystalix007/PersonalAUR/master/variational-depth-from-focus/PKGBUILD) is provided for Arch Linux users.
+
 #### Windows
-The code was tested under Windows 8.1, OpenCV 2.4.10, CMake 3.2.1, CUDA 7.0 and assumes you have a working version of Visual Studio installed.In our case, we worked with Visual Studio Ultimate 2013. 
+See commit 17226b9648f11d41b915cd060f9af636d4e106de for OpenCV 2.4 support.
+
+The code was tested under Windows 8.1, OpenCV 2.4.10, CMake 3.2.1, CUDA 7.0 and assumes you have a working version of Visual Studio installed. In our case, we worked with Visual Studio Ultimate 2013. 
 
 If you do not have a version of Visual Studio, it is recommended that you install it first.
 One can obtain a free version under the following link:
@@ -220,7 +226,7 @@ After the capture, a burst of images is saved in the folder
 ```sh
 Pictures/devCam/Captured/<capture design id>
 ```
-For copying the json file to the device and copying the captured image folder back to the PC one can use the MTP based [Android File Transfer](https://www.android.com/filetransfer/) on MAC. Note that if new folders/files don't show up, just restart the Android File Transfer program and if that doesn't help, restart the phone.
+For copying the json file to the device and copying the captured image folder back to the PC one can use the MTP based [Android File Transfer](https://www.android.com/filetransfer/) on Mac. Note that if new folders/files don't show up, just restart the Android File Transfer program and if that doesn't help, restart the phone.
 
 Since varying the focal distance also changes the field of view, corresponding pixels will no longer be aligned. This effect can be removed by aligning all the images and optimizing the field of view for all images using the [align image stack](http://hugin.sourceforge.net/docs/manual/Align_image_stack.html) of [hugin](http://hugin.sourceforge.net/). This outputs tiff images, to save space one can convert them back to jpg using the compress application provided in our repository.
 ```sh
@@ -232,13 +238,13 @@ cd <capture design id>
 cd ..
 ../build/compress -compr 95 -indir ../aligned/<capture design id> -outdir ../samples/<capture design id> -type jpg -color 1 -anydepth 1 -debug 0
 ```
-note that when using the sweep_focus.json file which ships with the app instead of the one we provide above, the order of focal distances is reversed, meaning that the first captured image has the largest focal distance. In this case, just pass -r to sort so that the images will be cropped correctly and the resulting depth colormap is in the same order as in the other sequences.
+Note that when using the sweep_focus.json file, which ships with the app, instead of the one we provide above, the order of focal distances is reversed, meaning that the first captured image has the largest focal distance. In this case, just pass -r to sort so that the images will be cropped correctly and the resulting depth colormap is in the same order as in the other sequences.
 
 For convenience, we provide the bash script [align.sh](https://github.com/adrelino/variational-depth-from-focus/blob/master/align.sh) which bundles all of the above tasks, and additionally calls the main vdff programm together with the export option to quickly check if a recorded burst gives a satisfying depth map.
 
-considered you copied the Captured folder to the root of this github repository, then you simply need to run
+Once you have copied the Captured folder to the root of this github repository, then you simply need to run:
 ```sh
 cd <vddf repo root>/Captured
 ../align.sh <capture design id> <reverse>?
 ```
-which aligns the images, optionally reversing them if a second argument is supplied, crops them, compresses them and stores them in the /samples/<capture design id> folder and then runs the main vdff programm with this sequence, exporting the resulting depth map to /samples/results/<capture design id>.png.
+This aligns the images, optionally reversing them if a second argument is supplied, crops them, compresses them and stores them in the /samples/<capture design id> folder and then runs the main vdff programm with this sequence, exporting the resulting depth map to /samples/results/<capture design id>.png.
