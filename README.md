@@ -13,7 +13,7 @@ Möller, Michael et al. ["Variational Depth From Focus Reconstruction.”](http:
 CMake, CUDA, OpenCV
 
 #### MacOSX (10.9, 10.10)
-See commit 17226b9648f11d41b915cd060f9af636d4e106de for OpenCV 2.4 support.
+See commit [17226b9](https://github.com/adrelino/variational-depth-from-focus/commit/17226b9648f11d41b915cd060f9af636d4e106de) for OpenCV 2.4 support.
 
 We installed OpenCV 2.4.10 and CMake 3 using brew
 
@@ -51,7 +51,7 @@ pacman -S cuda
 Additionally, a [PKGBUILD](https://raw.githubusercontent.com/Crystalix007/PersonalAUR/master/variational-depth-from-focus/PKGBUILD) is provided for Arch Linux users.
 
 #### Windows
-See commit 17226b9648f11d41b915cd060f9af636d4e106de for OpenCV 2.4 support.
+See commit [17226b9](https://github.com/adrelino/variational-depth-from-focus/commit/17226b9648f11d41b915cd060f9af636d4e106de) for OpenCV 2.4 support.
 
 The code was tested under Windows 8.1, OpenCV 2.4.10, CMake 3.2.1, CUDA 7.0 and assumes you have a working version of Visual Studio installed. In our case, we worked with Visual Studio Ultimate 2013. 
 
