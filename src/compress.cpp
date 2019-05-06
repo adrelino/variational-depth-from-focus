@@ -70,9 +70,9 @@ int main(int argc, char **argv) {
     for(int i=0; i<images.size(); i+=step){
         cv::Mat image;
         if(unchanged){
-            image = cv::imread(images[i],CV_LOAD_IMAGE_UNCHANGED);
+            image = cv::imread(images[i],IMREAD_UNCHANGED);
         }else{
-            image = cv::imread(images[i], (CV_LOAD_IMAGE_COLOR & color*255 ) | (CV_LOAD_IMAGE_ANYDEPTH & anydepth*255) | (CV_LOAD_IMAGE_ANYCOLOR & anycolor*255) );
+            image = cv::imread(images[i], (IMREAD_COLOR & color*255 ) | (IMREAD_ANYDEPTH & anydepth*255) | (IMREAD_ANYCOLOR & anycolor*255) );
         }
 
         if(debug) cv::imshow("in",image);
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
         //http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html#imwrite
         //Only 8-bit (or 16-bit unsigned (CV_16U) in case of PNG, JPEG 2000, and TIFF) single-channel or 3-channel (with ‘BGR’ channel order) images can be saved using this function.
         if(type == "jpg"){
-           params.push_back(CV_IMWRITE_JPEG_QUALITY);
+           params.push_back(IMWRITE_JPEG_QUALITY);
            params.push_back(compr);   // that's percent, so 100 == no compression, 1 == full
            int maxRange = MAX_RANGE(image);
            if(maxRange>255){
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
                image.convertTo(image,CV_8U,scaleFactor); //jpg only supports 8 bit,
            }
         }else if (type == "png"){
-           params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+           params.push_back(IMWRITE_PNG_COMPRESSION);
            params.push_back(compr);   // that's compression level, 9 == full , 0 == none
         }else if (type == "exr"){
             //exr can save 32 bit float
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
         cv::imwrite(outname,image,params);
 
         if(debug){
-            image = cv::imread(outname,CV_LOAD_IMAGE_UNCHANGED);
+            image = cv::imread(outname,IMREAD_UNCHANGED);
             cv::imshow("saved",image);
             cout<<"saved: ";
             openCVHelpers::imgInfo(image);
