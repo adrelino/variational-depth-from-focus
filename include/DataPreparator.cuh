@@ -19,6 +19,7 @@
 #define DATA_PREPARATOR_H
 
 #include <utils.cuh>
+#undef id
 #include <opencv2/opencv.hpp>
 
 namespace vdff {

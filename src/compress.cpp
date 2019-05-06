@@ -1,17 +1,19 @@
 
 // opencv stuff
+#include <iostream>
+using namespace std;
+
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/contrib/contrib.hpp>
+//#include <opencv2/contrib/contrib.hpp>
 
 #include "openCVHelpers.h"
 
-#include <iostream>
 
 #include <sys/stat.h>
 
 using namespace vdff;
-using namespace std;
 using namespace Utils;
 
 int main(int argc, char **argv) {
