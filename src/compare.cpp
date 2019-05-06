@@ -24,8 +24,8 @@ int main(int argc, char **argv) {
 
 
 
-        cv::Mat depthFromGray = cv::imread(im1,CV_LOAD_IMAGE_UNCHANGED);
-        cv::Mat depthFromColor = cv::imread(im2,CV_LOAD_IMAGE_UNCHANGED);
+        cv::Mat depthFromGray = cv::imread(im1,cv::IMREAD_UNCHANGED);
+        cv::Mat depthFromColor = cv::imread(im2,cv::IMREAD_UNCHANGED);
 
         cout<<"im1: ";
         openCVHelpers::imgInfo(depthFromGray,true);

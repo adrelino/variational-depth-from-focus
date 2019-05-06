@@ -232,8 +232,8 @@ namespace vdff {
     void showImage(const string &title, const cv::Mat &mat, int x, int y)
     {
       const char *wTitle = title.c_str();
-      cv::namedWindow(wTitle, CV_WINDOW_AUTOSIZE);
-      cvMoveWindow(wTitle, x, y);
+      cv::namedWindow(wTitle, cv::WINDOW_AUTOSIZE);
+      cv::moveWindow(wTitle, x, y);
       cv::imshow(wTitle, mat);
     }
 
@@ -287,10 +287,10 @@ namespace vdff {
 
       Mat scaled = mat;
       Mat meanCols;
-      reduce(mat, meanCols, 0, CV_REDUCE_AVG );
+      reduce(mat, meanCols, 0, cv::REDUCE_AVG);
 
       Mat mean;
-      reduce(meanCols, mean, 1, CV_REDUCE_AVG);
+      reduce(meanCols, mean, 1, cv::REDUCE_AVG);
     
       cout << "Max value: " << max << endl;
       cout << "Mean value: " << mean.at<float>(0) << endl;
@@ -401,9 +401,9 @@ void imgInfo(cv::Mat image,bool full){
 }
 
 Mat imreadFloat(string filename,bool grayscale){
-    int flags = CV_LOAD_IMAGE_UNCHANGED;
+    int flags = cv::IMREAD_UNCHANGED;
 //    if(openCVHelpers::color) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR;
-    if(grayscale) flags = CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_GRAYSCALE;
+    if(grayscale) flags = cv::IMREAD_ANYDEPTH | cv::IMREAD_GRAYSCALE;
 
     cv::Mat original = imread(filename,flags);
     //cout<<endl;
