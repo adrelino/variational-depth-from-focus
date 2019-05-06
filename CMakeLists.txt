@@ -80,3 +80,5 @@ target_link_libraries(
   compare
   ${OpenCV_LIBS}
   )
+
+install(TARGETS vdff DESTINATION bin)
