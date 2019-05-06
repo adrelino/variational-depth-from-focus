@@ -33,15 +33,17 @@ int main(int argc, char **argv) {
         openCVHelpers::imgInfo(depthFromColor,true);
 
         cv::Mat diff = abs(depthFromColor-depthFromGray);
-        cout<<endl<<"diff: ";
-        openCVHelpers::imgInfo(diff,true);
 
         double min,max;
         cv::minMaxLoc(diff,&min,&max);
         float scale = 255.0f / (max - min);
         cv::Mat depthMap;
         diff.convertTo(depthMap, CV_8UC1, scale, -min*scale);
+        diff.convertTo(diff, CV_32FC1);
 
+        cout<<endl<<"diff: ";
+        openCVHelpers::imgInfo(diff,true);
+        cout.flush();
 
         cv::imshow("diff",depthMap);
         imwrite(imdiff+".png",depthMap);
