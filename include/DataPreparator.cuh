@@ -19,7 +19,11 @@
 #define DATA_PREPARATOR_H
 
 #include <utils.cuh>
+
+#pragma push_macro("id")
+#undef id
 #include <opencv2/opencv.hpp>
+#pragma pop_macro("id")
 
 namespace vdff {
   typedef enum{

@@ -59,24 +59,26 @@ target_link_libraries(
   )
 
 add_executable(
-  compress
+  vdff-compress
   src/compress.cpp
   src/openCVHelpers.cpp
 )
 
 target_link_libraries(
-  compress
+  vdff-compress
   ${OpenCV_LIBS}
   )
 
 
 add_executable(
-  compare
+  vdff-compare
   src/compare.cpp
   src/openCVHelpers.cpp
 )
 
 target_link_libraries(
-  compare
+  vdff-compare
   ${OpenCV_LIBS}
   )
+
+install(TARGETS vdff vdff-compress vdff-compare DESTINATION bin)
